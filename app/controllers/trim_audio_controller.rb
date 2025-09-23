@@ -1,5 +1,6 @@
 class TrimAudioController < ApplicationController
-
+    before_action :authenticate!
+    
     def create
         uploaded_file = params[:file]
         start_ms = params[:start].to_f
