@@ -4,10 +4,12 @@ class SessionsController < ApplicationController
   def create
     auth = request.env['omniauth.auth']
 
-    user = User.find_or_create_by(email: auth.info.email) do |u|
+    debugger
+
+    user = User.find_or_create_by!(email: auth.info.email) do |u|
       u.name = auth.info.name || "User#{SecureRandom.hex(4)}"
-      u.provider = auth.info.provider
-      u.uid = auth.info.uid
+      u.provider = auth.provider
+      u.uid = auth.uid
     end
 
     session_token = SecureRandom.hex(32)

@@ -15,4 +15,5 @@ class ApplicationController < ActionController::API
         else
             render json: { error: 'Invalid token' }, status: 401
         end
+    end
 end
