@@ -7,4 +7,5 @@ Rails.application.routes.draw do
 
   post "/translate", to: "translations#create"
   post "/tts", to: "tts#create"
+  post "/trim", to: "trim_audio#create"
 end
