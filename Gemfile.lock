@@ -131,7 +131,7 @@ GEM
     google-cloud-location (1.2.0)
       gapic-common (~> 1.2)
       google-cloud-errors (~> 1.0)
-    google-cloud-text_to_speech (2.0.0)
+    google-cloud-text_to_speech (2.0.3)
       google-cloud-core (~> 1.6)
       google-cloud-text_to_speech-v1 (~> 1.7)
     google-cloud-text_to_speech-v1 (1.12.0)
