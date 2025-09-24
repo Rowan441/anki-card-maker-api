@@ -4,7 +4,8 @@ class ApplicationController < ActionController::API
     private 
 
     def authenticate!
-        token = request.headers['Authorization']&.split(' ')&.last
+        return if Rails.env.development?
+        token = cookies.encrypted[:session_token]
 
         return render json: { error: 'Missing token' }, status: :unauthorized unless token
 

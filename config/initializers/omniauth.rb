@@ -4,5 +4,8 @@ Rails.application.config.middleware.use OmniAuth::Builder do
            Rails.application.credentials.dig(:google_oauth, :client_secret),
            scope: 'email,profile',
            prompt: 'select_account'
+
+  provider :developer if Rails.env.development?
 end
+
 OmniAuth.config.allowed_request_methods = %i[get]
