@@ -10,12 +10,12 @@ class DecksController < ApplicationController
         end
     end
     
-    def readall
+    def index
         decks = @current_user.decks
         render json: decks, status: :ok 
     end
     
-    def read
+    def show
         deck = @current_user.decks.find_by(id: params[:id])
         if deck
             render json: deck, status: :ok

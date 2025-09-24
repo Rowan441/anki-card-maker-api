@@ -14,7 +14,7 @@ class NotesController < ApplicationController
     end
   end
 
-  def readall
+  def index
     deck = @current_user.decks.find_by(id: params[:deck_id])
     notes = deck&.notes
     if notes
@@ -24,7 +24,7 @@ class NotesController < ApplicationController
     end
   end
 
-  def read
+  def show
     deck = @current_user.decks.find_by(id: params[:deck_id])
     note = deck.notes.find_by(id: params[:id])
     if note

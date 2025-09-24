@@ -9,14 +9,14 @@ Rails.application.routes.draw do
   post "/tts", to: "tts#create"
   post "/trim", to: "trim_audio#create"
 
-  get "/notes", to: "notes#readall"
-  get "/notes/:id", to: "notes#read"
+  get "/notes", to: "notes#index"
+  get "/notes/:id", to: "notes#show"
   post "/notes", to: "notes#create"
   put "/notes/:id", to: "notes#update"
   delete "/notes/:id", to: "notes#delete"
 
-  get "/decks", to: "decks#readall"
-  get "/decks/:id", to: "decks#read"
+  get "/decks", to: "decks#index"
+  get "/decks/:id", to: "decks#show"
   post "/decks", to: "decks#create"
   put "/decks/:id", to: "decks#update"
   delete "/decks/:id", to: "decks#delete"
