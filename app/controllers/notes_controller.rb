@@ -8,7 +8,7 @@ class NotesController < ApplicationController
       note.audio.attach(params[:audio]) if params[:audio]
       note.image.attach(params[:image]) if params[:image]
 
-      render json: note, status: :created
+      render json: note_json(note), status: :created
     else
       render json: { errors: note.errors.full_messages }, status: :unprocessable_entity
     end
@@ -18,7 +18,7 @@ class NotesController < ApplicationController
     deck = @current_user.decks.find_by(id: params[:deck_id])
     notes = deck&.notes
     if notes
-      render json: notes, status: :ok 
+      render json: notes.map { |note| note_json(note) }, status: :ok 
     else
       render json: { error: 'Deck not found' }, status: :not_found
     end
@@ -28,7 +28,7 @@ class NotesController < ApplicationController
     deck = @current_user.decks.find_by(id: params[:deck_id])
     note = deck.notes.find_by(id: params[:id])
     if note
-      render json: note, status: :ok
+      render json: note_json(note), status: :ok
     else
       render json: { error: 'Note not found' }, status: :not_found
     end
@@ -42,7 +42,7 @@ class NotesController < ApplicationController
         # Re-attach files if present
         note.audio.attach(params[:audio]) if params[:audio]
         note.image.attach(params[:image]) if params[:image] 
-        render json: note, status: :ok
+        render json: note_json(note), status: :ok
       else
         render json: { errors: note.errors.full_messages }, status: :unprocessable_entity
       end
@@ -67,4 +67,18 @@ class NotesController < ApplicationController
   def note_params
     params.permit(:source_text, :target_text, :romanization)
   end
+
+  def note_json(note)
+  {
+    id: note.id,
+    deck_id: note.deck_id,
+    source_text: note.source_text,
+    target_text: note.target_text,
+    romanization: note.romanization,
+    audio_url: note.audio.attached? ? url_for(note.audio) : nil,
+    image_url: note.image.attached? ? url_for(note.image) : nil,
+    created_at: note.created_at,
+    updated_at: note.updated_at
+  }
+end
 end
