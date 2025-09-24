@@ -35,7 +35,8 @@ class NotesController < ApplicationController
   end 
 
   def update
-    note = @current_user.notes.find_by(id: params[:id])
+    deck = @current_user.decks.find_by(id: params[:deck_id])
+    note = deck.notes.find_by(id: params[:id])
     if note
       if note.update(note_params)
         # Re-attach files if present
@@ -51,7 +52,8 @@ class NotesController < ApplicationController
   end 
   
   def delete
-    note = @current_user.notes.find_by(id: params[:id])
+    deck = @current_user.decks.find_by(id: params[:deck_id])
+    note = deck.notes.find_by(id: params[:id])
     if note
       note.destroy
       render json: { message: 'Note deleted' }, status: :ok

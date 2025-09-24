@@ -9,17 +9,18 @@ Rails.application.routes.draw do
   post "/tts", to: "tts#create"
   post "/trim", to: "trim_audio#create"
 
-  get "/notes", to: "notes#index"
-  get "/notes/:id", to: "notes#show"
-  post "/notes", to: "notes#create"
-  put "/notes/:id", to: "notes#update"
-  delete "/notes/:id", to: "notes#delete"
-
+  
   get "/decks", to: "decks#index"
   get "/decks/:id", to: "decks#show"
   post "/decks", to: "decks#create"
   put "/decks/:id", to: "decks#update"
   delete "/decks/:id", to: "decks#delete"
+  
+  get "/decks/:deck_id/notes", to: "notes#index"
+  get "/decks/:deck_id/notes/:id", to: "notes#show"
+  post "/decks/:deck_id/notes", to: "notes#create"
+  put "/decks/:deck_id/notes/:id", to: "notes#update"
+  delete "/decks/:deck_id/notes/:id", to: "notes#delete"
 
   get 'auth/:provider/callback', to: 'sessions#create'
   get '/auth/failure', to: 'sessions#failure'
