@@ -1,6 +1,7 @@
 class NotesController < ApplicationController
   def create
-    note = @current_user.notes.new(note_params)
+    deck = @current_user.decks.find_by(id: params[:deck_id])
+    note = deck.notes.new(note_params)
 
     if note.save
       # Attach files if present
@@ -14,12 +15,18 @@ class NotesController < ApplicationController
   end
 
   def readall
-    notes = @current_user.notes
-    render json: notes, status: :ok 
+    deck = @current_user.decks.find_by(id: params[:deck_id])
+    notes = deck&.notes
+    if notes
+      render json: notes, status: :ok 
+    else
+      render json: { error: 'Deck not found' }, status: :not_found
+    end
   end
 
   def read
-    note = @current_user.notes.find_by(id: params[:id])
+    deck = @current_user.decks.find_by(id: params[:deck_id])
+    note = deck.notes.find_by(id: params[:id])
     if note
       render json: note, status: :ok
     else

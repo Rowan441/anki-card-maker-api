@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-    has_many :notes, dependent: :destroy
+    has_many :decks, dependent: :destroy
     has_many :sessions, dependent: :destroy
     
     validates :email, presence: true, uniqueness: true

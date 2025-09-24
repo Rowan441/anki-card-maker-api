@@ -15,6 +15,12 @@ Rails.application.routes.draw do
   put "/notes/:id", to: "notes#update"
   delete "/notes/:id", to: "notes#delete"
 
+  get "/decks", to: "decks#readall"
+  get "/decks/:id", to: "decks#read"
+  post "/decks", to: "decks#create"
+  put "/decks/:id", to: "decks#update"
+  delete "/decks/:id", to: "decks#delete"
+
   get 'auth/:provider/callback', to: 'sessions#create'
   get '/auth/failure', to: 'sessions#failure'
 end

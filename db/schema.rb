@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_23_080947) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_24_064356) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -39,14 +39,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_23_080947) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "notes", force: :cascade do |t|
+  create_table "decks", force: :cascade do |t|
     t.integer "user_id", null: false
+    t.string "source_language", null: false
+    t.string "target_language", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_decks_on_user_id"
+  end
+
+  create_table "notes", force: :cascade do |t|
+    t.integer "deck_id", null: false
     t.string "source_text"
     t.string "target_text"
     t.string "romanization"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_notes_on_user_id"
+    t.index ["deck_id"], name: "index_notes_on_deck_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -71,6 +80,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_23_080947) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "notes", "users"
+  add_foreign_key "decks", "users"
+  add_foreign_key "notes", "decks"
   add_foreign_key "sessions", "users"
 end
