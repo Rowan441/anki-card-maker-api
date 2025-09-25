@@ -26,8 +26,7 @@ class TranslationsController < ApplicationController
       target_language_code: output_language,
       parent: parent
     )
-
-    # Return file URL (or base64 for immediate use)
-    render json: { text: response.translations.first.translated_text }
+    
+    render json: { text: response.translations.first.translated_text }, status: :ok
   end
 end

@@ -35,7 +35,6 @@ class SessionsController < ApplicationController
         <body>
           <p>Login successful! This window will close automatically...</p>
           <script>
-          debugger
             if (window.opener) {
               // Send success message to parent window
               window.opener.postMessage({ success: true }, '*');

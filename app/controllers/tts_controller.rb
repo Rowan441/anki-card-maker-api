@@ -5,6 +5,7 @@ class TtsController < ApplicationController
   
   def create
       text = params[:text]
+      language = params.fetch :language
 
       key_json = Rails.application.credentials.dig(:google_cloud, :tts_key)
       creds_hash = JSON.parse(key_json)
@@ -15,7 +16,7 @@ class TtsController < ApplicationController
 
       input_text = { text: text }
       voice = {
-        language_code: "pa-IN",        # Punjabi
+        language_code: language,
         name: "pa-IN-Wavenet-C",
         ssml_gender: :FEMALE
       }
