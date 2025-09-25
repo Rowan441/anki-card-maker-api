@@ -5,8 +5,8 @@ class TranslationsController < ApplicationController
 
   def create
     text = params[:text]
-    input_language = params.fetch :input_language, "pa"
-    output_language = params.fetch :output_language, "en"
+    input_language = params.fetch :source_language, "pa"
+    output_language = params.fetch :target_language, "en"
 
     key_json = Rails.application.credentials.dig(:google_cloud, :tts_key)
     creds_hash = JSON.parse(key_json)
