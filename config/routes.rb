@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   post "/decks/:deck_id/notes", to: "notes#create"
   patch "/decks/:deck_id/notes/:id", to: "notes#update"
   delete "/decks/:deck_id/notes/:id", to: "notes#delete"
+  post "/decks/:deck_id/notes/:id/tts", to: "notes#tts"
 
   get 'auth/:provider/callback', to: 'sessions#create'
   get '/auth/failure', to: 'sessions#failure'

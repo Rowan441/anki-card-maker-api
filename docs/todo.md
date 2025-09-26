@@ -5,4 +5,5 @@
 - tts and translation endpoint need params for input and output language
 - Romanization / transliteration endpoint
 - Support multiple images on notes
+- Option to record own audio
 

@@ -2,35 +2,39 @@ class TrimAudioController < ApplicationController
     before_action :authenticate!
     
     def create
-        uploaded_file = params[:file]
+        note = @current_user.notes.find_by(id: params[:note_id])
         start_ms = params[:start].to_f
         end_ms = params[:end].to_f
 
-        return render json: { error: "No file uploaded" }, status: 404 unless uploaded_file
-
-        # Save uploaded file to temp directory
-        tmp_dir = Rails.root.join("tmp", "uploads")
-        FileUtils.mkdir_p(tmp_dir)
-        tmp_file_path = tmp_dir.join("#{Time.now.to_i}_#{uploaded_file.original_filename}")
-        File.open(tmp_file_path, "wb") { |f| f.write(uploaded_file.read) }
-
-        # Prepare trimmed output file in public/tts
-        public_dir = Rails.root.join("public", "tts")
-        FileUtils.mkdir_p(public_dir)
-        trimmed_name = "trimmed_#{Time.now.to_i}_#{uploaded_file.original_filename}"
-        trimmed_path = public_dir.join(trimmed_name)
+        # Validate audio attachment
+        unless note && note.audio.attached? && note.audio.content_type == 'audio/mpeg'
+            render json: { error: 'Note or audio not found' }, status: :not_found
+        end 
 
         # Run ffmpeg trimming
-        cmd = ["ffmpeg", "-i", tmp_file_path.to_s]
+        cmd = ["ffmpeg", "-i", "-y", url_for(note.audio)] 
         cmd += ["-ss", "#{start_ms.to_s}ms"]
         cmd += ["-to", "#{end_ms.to_s}ms"]
-        cmd += ["-c", "copy", trimmed_path.to_s]
+        cmd += ["-c", "copy", url_for(note.audio)]
         system(*cmd)
 
-        # Return public URL
-        render json: { url: "/tts/#{trimmed_name}" }
-    ensure
-        # Clean up uploaded temp file
-        File.delete(tmp_file_path) if tmp_file_path && File.exist?(tmp_file_path)
+        # Return note with updated audio URL
+        render json: note_json(note), status: :ok
     end
+
+    private
+
+    def note_json(note)
+    {
+      id: note.id,
+      deck_id: note.deck_id,
+      source_text: note.source_text,
+      target_text: note.target_text,
+      romanization: note.romanization,
+      audio_url: note.audio.attached? ? rails_blob_path(note.audio, only_path: true, disposition: "inline")  : nil,
+      image_url: note.image.attached? ? rails_blob_path(note.image, only_path: true, disposition: "inline")  : nil,
+      created_at: note.created_at,
+      updated_at: note.updated_at
+    }
+  end
 end

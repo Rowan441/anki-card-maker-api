@@ -25,28 +25,31 @@ class SessionsController < ApplicationController
     # return token to the client as httponly set cookie
     cookies.encrypted[:session_token] = { value: session_token, httponly: true, secure: Rails.env.production? }
     
-    
-    render html: <<~HTML.html_safe
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Login Successful</title>
-        </head>
-        <body>
-          <p>Login successful! This window will close automatically...</p>
-          <script>
-            if (window.opener) {
-              // Send success message to parent window
-              window.opener.postMessage({ success: true }, '*');
-              window.close();
-            } else {
-              // Fallback if no opener (direct navigation)
-              window.location.href = '/';
-            }
-          </script>
-        </body>
-      </html>
-    HTML
+    # if the request comes from a popup window, close it and notify the opener
+    debugger
+    if request.env['omniauth.origin']&.include?('popup=true')
+      render html: <<~HTML.html_safe
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Login Successful</title>
+          </head>
+          <body>
+            <p>Login successful! This window will close automatically...</p>
+            <script>
+              if (window.opener) {
+                // Send success message to parent window
+                window.opener.postMessage({ success: true }, '*');
+                window.close();
+              } else {
+                // Fallback if no opener (direct navigation)
+                window.location.href = '/';
+              }
+            </script>
+          </body>
+        </html>
+      HTML
+    end
   end
 
   def failure
