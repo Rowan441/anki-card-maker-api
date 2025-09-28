@@ -2,7 +2,7 @@ require "google/cloud/text_to_speech"
 
 class TtsService
     def self.tts(text:, language_code:, ssml_gender: :NEUTRAL)
-        key_json = Rails.application.credentials.dig(:google_cloud, :tts_key)
+        key_json = Rails.application.credentials.dig(:google_cloud, :json_credentials)
         creds_hash = JSON.parse(key_json)
 
         client = Google::Cloud::TextToSpeech.text_to_speech do |config|

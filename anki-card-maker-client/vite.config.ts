@@ -24,13 +24,5 @@ export default defineConfig({
       "Cross-Origin-Embedder-Policy": "require-corp",
       "Cross-Origin-Opener-Policy": "same-origin",
     },
-    proxy: {
-      "/rails": {
-        target:
-          "https://opulent-space-system-q4wxv5pwg77hxprv-3000.app.github.dev",
-        changeOrigin: true,
-        secure: false,
-      },
-    }, // TODO REMOVE ME?
   },
 });

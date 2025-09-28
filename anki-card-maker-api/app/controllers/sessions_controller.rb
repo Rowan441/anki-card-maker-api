@@ -26,7 +26,6 @@ class SessionsController < ApplicationController
     cookies.encrypted[:session_token] = { value: session_token, httponly: true, secure: Rails.env.production? }
     
     # if the request comes from a popup window, close it and notify the opener
-    debugger
     if request.env['omniauth.origin']&.include?('popup=true')
       render html: <<~HTML.html_safe
         <!DOCTYPE html>

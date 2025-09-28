@@ -2,7 +2,7 @@ require "google/cloud/translate"
 
 class TranslationService
     def self.translate(text:, to:, from:)
-        key_json = Rails.application.credentials.dig(:google_cloud, :tts_key)
+        key_json = Rails.application.credentials.dig(:google_cloud, :json_credentials)
         creds_hash = JSON.parse(key_json)
 
         client = Google::Cloud::Translate.translation_service do |config|

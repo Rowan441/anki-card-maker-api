@@ -115,8 +115,8 @@ class NotesController < ApplicationController
       source_text: note.source_text,
       target_text: note.target_text,
       romanization: note.romanization,
-      audio_url: note.audio.attached? ? rails_blob_path(note.audio, only_path: true, disposition: "inline")  : nil,
-      image_url: note.image.attached? ? rails_blob_path(note.image, only_path: true, disposition: "inline")  : nil,
+      audio_url: note.audio.attached? ? url_for(note.audio)  : nil,
+      image_url: note.image.attached? ? url_for(note.image)  : nil,
       created_at: note.created_at,
       updated_at: note.updated_at
     }

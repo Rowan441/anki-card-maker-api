@@ -28,7 +28,7 @@ export default function AudioField({
     let canceled = false;
 
     const fetchAudio = async (audioUrl: string) => {
-      const response = await fetch(`${API_BASE}${audioUrl}`);
+      const response = await fetch(`${audioUrl}`);
       const blob = await response.blob();
       return new File([blob], audioUrl.split("/").pop() || "audio", {
         type: blob.type,
@@ -44,8 +44,11 @@ export default function AudioField({
       fetchAudio(audio).then((newAudioFile) => {
         if (!canceled) {
           setAudioFile(newAudioFile);
-          setAudioUrl(audio);
-        }
+          // TODO: we are using the downloaded audio as a url evn though is it already 
+          // on the server, if we can use the server audio in our <audio> tag, then we
+          // don't need to download the audio (unless the user wan't to trim it with <Mirt />)
+          setAudioUrl(URL.createObjectURL(newAudioFile)); 
+        } 
       });
     }
 
