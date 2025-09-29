@@ -292,7 +292,7 @@ export default function WordListTable() {
               await NotesService.update({
                 deck_id: DECK_ID,
                 id: row.original.id,
-                payload: { audio: undefined },
+                payload: { remove_audio: true },
               });
               handleUpdate(row.original.id, {
                 audio_url: undefined,
@@ -304,13 +304,11 @@ export default function WordListTable() {
       },
       {
         header: "Image",
-        accessorKey: "image",
+        accessorKey: "image_url",
         cell: ({ row }) => (
           <ImageField
             imageUrl={
-              row.original.imageFile
-                ? URL.createObjectURL(row.original.imageFile)
-                : ""
+              row.getValue("image_url")
             }
             onReplace={async (file) => {
               const updatedNote = await NotesService.update({
@@ -326,10 +324,10 @@ export default function WordListTable() {
               await NotesService.update({
                 deck_id: DECK_ID,
                 id: row.original.id,
-                payload: { image: undefined },
+                payload: { remove_image: true },
               });
               handleUpdate(row.original.id, {
-                imageFile: undefined,
+                // imageFile: undefined,
                 image_url: undefined,
               });
             }}

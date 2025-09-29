@@ -20,8 +20,8 @@ async function request(endpoint: string, options: RequestInit = {}) {
 }
 
 function buildPayload(params: NoteUploadApi) {
-  const hasFile = Object.keys(params).some(
-    (key) => key === "audio" || key === "image"
+  const hasFile = Object.entries(params).some(
+    ([key, value]) => (key === "audio" && value instanceof File) || (key === "image" && value instanceof File)
   );
 
   if (hasFile) {

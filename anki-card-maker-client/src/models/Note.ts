@@ -8,7 +8,7 @@ export type Note = {
   audioFile?: File;
   audio_url?: string;
   // audioSource?: string | File;
-  imageFile?: File;
+  // imageFile?: File;
   image_url?: string;
   // imageSource?: string | File;
   // pronunciationSource?: string;
@@ -22,8 +22,10 @@ export type NoteUploadApi = {
   target_text?: string;
   source_text?: string;
   romanization?: string;
-  audio?: File;
-  image?: File;
+  audio?: File | null;
+  image?: File | null;
+  remove_audio?: boolean;
+  remove_image?: boolean;
 };
 
 export type NoteResponseApi = {

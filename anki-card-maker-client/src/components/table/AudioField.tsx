@@ -22,7 +22,7 @@ export default function AudioField({
   onDelete,
 }: AudioFieldProps) {
   const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string>("asdasdf");
+  const [audioUrl, setAudioUrl] = useState<string>("");
 
   useEffect(() => {
     let canceled = false;
@@ -50,6 +50,10 @@ export default function AudioField({
           setAudioUrl(URL.createObjectURL(newAudioFile)); 
         } 
       });
+    } else {
+      // No audio present
+      setAudioFile(null);
+      setAudioUrl("");
     }
 
     return () => {

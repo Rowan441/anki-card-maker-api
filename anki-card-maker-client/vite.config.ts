@@ -21,7 +21,7 @@ export default defineConfig({
       await ffmpeg.load({ coreURL }); // only coreURL needed, uses inline WASM
       ``` 
       */
-      "Cross-Origin-Embedder-Policy": "require-corp",
+      // "Cross-Origin-Embedder-Policy": "require-corp", //todo: put this back when deploying??
       "Cross-Origin-Opener-Policy": "same-origin",
     },
   },

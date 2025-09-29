@@ -46,6 +46,13 @@ class NotesController < ApplicationController
         if params[:image].present? and params[:image].is_a?(ActionDispatch::Http::UploadedFile)
           note.image.attach(params[:image])
         end
+
+        if params[:remove_audio]
+          note.audio.purge
+        end
+        if params[:remove_image]
+          note.image.purge
+        end
         render json: note_json(note), status: :ok
       else
         render json: { errors: note.errors.full_messages }, status: :unprocessable_entity
