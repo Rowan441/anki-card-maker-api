@@ -18,19 +18,32 @@ export default function ImageField({ imageUrl, onReplace, onDelete }: Props) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
-    accept: { "image/*": [] },
+    accept: {
+    "image/png": [],
+    "image/jpeg": [],
+  },
   });
-
-  const handleReplace = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onReplace(file);
-    }
-  };
 
   return (
     <div className="flex flex-col items-center">
-      {!imageUrl && (
+      {imageUrl ? (
+        <>
+          <img
+            src={imageUrl}
+            alt="Thumbnail"
+            className="my-2 rounded-md max-h-16 max-w-16"
+            onClick={() => setModalOpen(true)}
+          />
+          <div className="flex space-x-2 mb-2">
+            <button
+              className="text-xs bg-red-500 text-white px-2 py-1 rounded"
+              onClick={onDelete}
+            >
+              Delete
+            </button>
+          </div>
+        </>
+      ) : (
         <div
           {...getRootProps()}
           className={`p-3 my-2 border-2 border-dashed rounded-md text-center cursor-pointer transition ${
@@ -57,38 +70,6 @@ export default function ImageField({ imageUrl, onReplace, onDelete }: Props) {
             </svg>
           </div>
         </div>
-      )}
-
-      {imageUrl ? (
-        <>
-          <img
-            src={imageUrl}
-            alt="Thumbnail"
-            className="my-2 rounded-md max-h-16 max-w-16"
-            onClick={() => setModalOpen(true)}
-          />
-          <div className="flex space-x-2 mb-2">
-            <button className="text-xs bg-blue-500 text-white px-2 py-1 rounded">
-              Replace
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleReplace}
-              />
-            </button>
-            <button
-              className="text-xs bg-red-500 text-white px-2 py-1 rounded"
-              onClick={onDelete}
-            >
-              Delete
-            </button>
-          </div>
-        </>
-      ) : (
-        <label className="text-blue-600 hover:underline cursor-pointer text-sm">
-          <input type="file" accept="image/*" hidden onChange={handleReplace} />
-        </label>
       )}
 
       {/* Modal */}

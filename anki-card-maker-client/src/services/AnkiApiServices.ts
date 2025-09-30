@@ -4,7 +4,7 @@ export type TextField = "target_text" | "source_text";
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
-async function request(endpoint: string, options: RequestInit = {}) {
+async function request(endpoint: string, options: RequestInit = {}, asJson = true) {
   const headers = {
     ...(options.body instanceof FormData
       ? {}
@@ -16,7 +16,9 @@ async function request(endpoint: string, options: RequestInit = {}) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || `Request failed: ${res.status}`);
   }
-  return res.json();
+
+  if (asJson) return res.json();
+  return res;
 }
 
 function buildPayload(params: NoteUploadApi) {
@@ -27,7 +29,11 @@ function buildPayload(params: NoteUploadApi) {
   if (hasFile) {
     const formData = new FormData();
     Object.entries(params).forEach(([key, value]) => {
-      formData.append(key, value);
+      if (typeof value === "boolean") {
+        formData.append(key, value ? "true" : "false"); // convert boolean to string
+      } else {
+        formData.append(key, value);
+      }
     });
     return formData;
   }
@@ -42,7 +48,7 @@ export const NotesService = {
   show({ deck_id, id }: { deck_id: number; id: number }) {
     return request(`/decks/${deck_id}/notes/${id}`);
   },
-  create({ deck_id, payload }: { deck_id: number; payload: NoteUploadApi }) {
+  create({ deck_id, payload }: { deck_id: number; payload: NoteUploadApi }): Promise<NoteResponseApi> {
     return request(`/decks/${deck_id}/notes`, {
       method: "POST",
       body: buildPayload(payload),
@@ -76,6 +82,22 @@ export const NotesService = {
   }): Promise<NoteResponseApi> {
     return request(`/decks/${deck_id}/notes/${id}/tts`, {
       method: "POST",
+    });
+  },
+  trim({
+    deck_id,
+    id,
+    start,
+    end
+  }: {
+    deck_id: number;
+    id: number;
+    start: string;
+    end: string;
+  }): Promise<NoteResponseApi> {
+    return request(`/decks/${deck_id}/notes/${id}/trim`, {
+      method: "POST",
+      body: JSON.stringify({ start, end }),
     });
   },
 };
@@ -141,22 +163,21 @@ export const AudioService = {
   },
 
   trim({
-    note_id,
+    audio_file,
     start_ms,
     end_ms,
   }: {
-    note_id: number;
+    audio_file: File;
     start_ms: string;
     end_ms: string;
-  }): Promise<NoteResponseApi> {
+  }) {
     const formData = new FormData();
-    formData.append("note_id", note_id.toString());
+    formData.append("audio_file", audio_file);
     formData.append("start", start_ms);
     formData.append("end", end_ms);
-
     return request(`/audio/trim`, {
       method: "POST",
       body: formData,
-    });
+    }, false);
   },
 };

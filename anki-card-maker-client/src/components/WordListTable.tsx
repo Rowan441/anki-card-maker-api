@@ -118,21 +118,22 @@ export default function WordListTable() {
   };
 
   const handleAddRow = async () => {
-    const maxId = Math.max(0, ...notes.map((n) => n.id));
-    const newNote: Note = await autoCompleteNote({
-      id: maxId + 1,
-      target_text: newEntry.target_text ?? "",
-      romanization:
-        newEntry.romanization?.trim() ||
-        transliterate(newEntry.target_text ?? "", "gurmukhi", "iso"),
-      source_text: newEntry.source_text ?? "",
-    });
-    setNotes((prev) => [...prev, newNote]);
-    setNewEntry({ target_text: "", romanization: "", source_text: "" });
-
-    NotesService.create({ deck_id: 3, payload: newNote }).catch((err) => {
+    const uploadNote: NoteUploadApi = {
+      target_text: newEntry.target_text,
+      source_text: newEntry.source_text,
+      romanization: newEntry.romanization,
+      audio: newEntry.audioFile,
+      image: newEntry.imageFile
+    };
+    const newNote = await NotesService.create({ deck_id: 3, payload: uploadNote }).catch((err) => {
       console.error("Failed to create note:", err);
+      return;
     });
+    if (newNote) {
+      setNotes((prev) => [...prev, newNote]);
+      setNewEntry({ target_text: "", romanization: "", source_text: "" });
+    }
+
   };
 
   const autoCompleteNote = async (note: Note) => {
@@ -278,10 +279,11 @@ export default function WordListTable() {
               });
             }}
             onTrim={async (start, end) => {
-              const updatedNote = await AudioService.trim({
-                note_id: row.original.id,
-                start_ms: start.toString(),
-                end_ms: end.toString(),
+              const updatedNote = await NotesService.trim({
+                deck_id: 3,
+                id: row.original.id,
+                start: start.toString(),
+                end: end.toString(),
               });
 
               handleUpdate(row.original.id, {
@@ -550,7 +552,7 @@ export default function WordListTable() {
                   newInputRefs.current[0] = el;
                 }}
                 className="border p-1 rounded w-full"
-                placeholder="New Gurmukhi"
+                placeholder="Gurmukhi"
                 value={newEntry.target_text}
                 onChange={(e) =>
                   setNewEntry({ ...newEntry, target_text: e.target.value })
@@ -564,7 +566,7 @@ export default function WordListTable() {
                   newInputRefs.current[1] = el;
                 }}
                 className="border p-1 rounded w-full"
-                placeholder="New Transliteration"
+                placeholder="Transliteration"
                 value={newEntry.romanization}
                 onChange={(e) =>
                   setNewEntry({ ...newEntry, romanization: e.target.value })
@@ -578,7 +580,7 @@ export default function WordListTable() {
                   newInputRefs.current[2] = el;
                 }}
                 className="border p-1 rounded w-full"
-                placeholder="New English"
+                placeholder="English"
                 value={newEntry.source_text}
                 onChange={(e) =>
                   setNewEntry({ ...newEntry, source_text: e.target.value })
@@ -588,18 +590,24 @@ export default function WordListTable() {
             </td>
             <td className="p-2 border">
               <AudioField
-                audio={newEntry.audio_url}
+                audio={newEntry.audioFile}
                 onFileUpload={(file) => {
                   setNewEntry({
                     ...newEntry,
                     audioFile: file,
                   });
                 }}
-                onTrim={async (_start, _end) => {
-                  //TODO fix all of this
-                  //need to persist the new note first to get an id?
-                  //maybe save with draft=true or something
+                onTrim={async (start, end) => {
+                  const res = await AudioService.trim({audio_file: newEntry.audioFile, start_ms: start.toString(), end_ms: end.toString()});
+                  const trimmedBlob = await res.blob();
+                  const trimmedFile = new File([trimmedBlob], "trimmed_audio.mp3", { type: "audio/mpeg" });
+                  debugger;
+                  setNewEntry({
+                    ...newEntry,
+                    audioFile: trimmedFile,
+                  })
                 }}
+                
                 onDelete={() =>
                   setNewEntry({
                     ...newEntry,
@@ -611,22 +619,23 @@ export default function WordListTable() {
             <td className="p-2 border">
               <ImageField
                 imageUrl={
-                  newEntry.imageFile
-                    ? URL.createObjectURL(newEntry.imageFile)
-                    : ""
+                  newEntry.image_url
                 }
                 onReplace={(file) => {
                   setNewEntry({
                     ...newEntry,
                     imageFile: file,
+                    image_url: URL.createObjectURL(file),
                   });
                 }}
-                onDelete={() =>
+                onDelete={() => {
+                  if (newEntry.image_url) URL.revokeObjectURL(newEntry.image_url);
                   setNewEntry({
                     ...newEntry,
                     imageFile: undefined,
+                    image_url: undefined,
                   })
-                }
+                }}
               />
             </td>
 
@@ -636,7 +645,11 @@ export default function WordListTable() {
                   if (!newEntry.target_text && !newEntry.source_text) return;
                   handleAddRow();
                 }}
-                className="bg-green-500 text-white px-3 py-1 rounded"
+                disabled={!newEntry.target_text && !newEntry.source_text}
+                className="bg-green-500 text-white px-3 py-1 rounded 
+                disabled:bg-gray-400 disabled:cursor-not-allowed disabled:text-gray-200
+                hover:bg-green-600 disabled:hover:bg-gray-400
+                transition-colors duration-200 ease-in-out"
               >
                 + Add
               </button>

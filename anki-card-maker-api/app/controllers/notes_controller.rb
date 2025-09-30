@@ -109,6 +109,24 @@ class NotesController < ApplicationController
     render json: note_json(note)
   end
 
+  def trim 
+    deck = @current_user.decks.find_by(id: params[:deck_id])
+    note = deck.notes.find_by(id: params[:id])
+
+    start_ms = params[:start].to_f
+    end_ms = params[:end].to_f
+
+    # Validate audio attachment
+    unless note && note.audio.attached? && note.audio.content_type == 'audio/mpeg'
+        render json: { error: 'Note or audio not found' }, status: :not_found
+    end 
+
+    trimmed_file = TrimService.trim(note.audio, start_ms, end_ms)
+    note.audio.attach trimmed_file
+
+    # Return note with updated audio URL
+    render json: note_json(note), status: :ok
+  end
   private
   
   def note_params
@@ -122,8 +140,8 @@ class NotesController < ApplicationController
       source_text: note.source_text,
       target_text: note.target_text,
       romanization: note.romanization,
-      audio_url: note.audio.attached? ? url_for(note.audio)  : nil,
-      image_url: note.image.attached? ? url_for(note.image)  : nil,
+      audio_url: note.audio.attached? && note.audio.persisted? ? url_for(note.audio)  : nil,
+      image_url: note.image.attached? && note.image.persisted? ? url_for(note.image)  : nil,
       created_at: note.created_at,
       updated_at: note.updated_at
     }
