@@ -8,12 +8,12 @@ class TranslationsController < ApplicationController
     input_language = params.fetch :target_language, "pa"
     output_language = params.fetch :source_language, "en"
 
-    TranslationService.translate(
+    translation = TranslationService.translate(
       text: text,
       source_language_code: input_language,
       target_language_code: output_language,
     )
     
-    render json: { text: response }, status: :ok
+    render json: { text: translation }, status: :ok
   end
 end

@@ -40,19 +40,21 @@ export default function WordListTable() {
   // Replace with your initial words data or import from a file
   const [notes, setNotes] = useState<Note[]>([] as Note[]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [loading, setLoading] = useState(true);
+  const [loadingTableRows, setLoadingTableRows] = useState(true);
+  const [isAddingRow, setIsAddingRow] = useState(false);
+  
 
   // Fetch initial words from NotesService
   useEffect(() => {
     async function fetchNotes() {
-      setLoading(true);
+      setLoadingTableRows(true);
       try {
         const fetchedNotes = await NotesService.index({ deck_id: 3 });
         setNotes(fetchedNotes);
       } catch (err) {
         // handle error if needed
       } finally {
-        setLoading(false);
+        setLoadingTableRows(false);
       }
     }
     fetchNotes();
@@ -603,7 +605,7 @@ export default function WordListTable() {
                   const res = await AudioService.trim({audio_file: newEntry.audioFile, start_ms: start.toString(), end_ms: end.toString()});
                   const trimmedBlob = await res.blob();
                   const trimmedFile = new File([trimmedBlob], "trimmed_audio.mp3", { type: "audio/mpeg" });
-                  
+
                   setNewEntry({
                     ...newEntry,
                     audioFile: trimmedFile,
@@ -645,9 +647,15 @@ export default function WordListTable() {
               <Button
                 variant="primary"
                 size="md"
-                onClick={() => {
-                  if (!newEntry.target_text && !newEntry.source_text) return;
-                  handleAddRow();
+                loading={isAddingRow}
+                onClick={ async () => {
+                  setIsAddingRow(true)
+                  try {
+                    if (newEntry.target_text || newEntry.source_text) await handleAddRow();
+                    
+                  } finally {
+                    setIsAddingRow(false)
+                  }
                 }}
                 disabled={!newEntry.target_text && !newEntry.source_text}
               >

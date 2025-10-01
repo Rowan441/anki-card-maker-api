@@ -1,7 +1,7 @@
 require "google/cloud/translate"
 
 class TranslationService
-    def self.translate(text:, to:, from:)
+    def self.translate(text:, source_language_code:, target_language_code:)
         key_json = Rails.application.credentials.dig(:google_cloud, :json_credentials)
         creds_hash = JSON.parse(key_json)
 
@@ -14,11 +14,13 @@ class TranslationService
         location: "global"
         )
         
+        return "" if text.empty?
+
         response = client.translate_text(
-        contents: [text],
-        source_language_code: to,
-        target_language_code: from,
-        parent: parent
+            contents: [text],
+            source_language_code: source_language_code,
+            target_language_code: target_language_code,
+            parent: parent
         )
 
         response.translations.first.translated_text
