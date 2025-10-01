@@ -6,8 +6,8 @@ class Session < ApplicationRecord
 	validates :token, presence: true, uniqueness: true
 
 	def expired?
-    	last_used_at.nil? || last_used_at <= 1.week.ago
-  	end
+		last_used_at.nil? || last_used_at <= 1.week.ago
+	end
 
 	private
 
