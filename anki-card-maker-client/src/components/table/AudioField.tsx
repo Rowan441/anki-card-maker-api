@@ -5,14 +5,14 @@ import Mirt from "react-mirt";
 import "react-mirt/dist/css/react-mirt.css";
 import { formatMs } from "../../utils/formatMs";
 import { AudioService } from "../../services/AnkiApiServices";
+import Button from "../ui/Button";
 
-const API_BASE = import.meta.env.VITE_API_URL;
 
 interface AudioFieldProps {
   audio?: string | File;
   onFileUpload: (file: File) => void;
-  onTrim: (start_ms: number, end_ms: number) => void;
-  onDelete: () => void;
+  onTrim: (start_ms: number, end_ms: number) => void | Promise<void>;
+  onDelete: () => void | Promise<void>;
 }
 
 export default function AudioField({
@@ -23,6 +23,9 @@ export default function AudioField({
 }: AudioFieldProps) {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string>("");
+
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isTrimming, setIsTrimming] = useState(false);
 
   useEffect(() => {
     let canceled = false;
@@ -79,6 +82,15 @@ export default function AudioField({
     accept: { "audio/*": [] },
   });
 
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await onDelete();
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const handleEdit = () => {
     if (!audioFile) return;
     setTrimTimes({ start: 0, end: 0 });
@@ -86,9 +98,14 @@ export default function AudioField({
   };
 
   const handleTrim = async () => {
-    if (!audioFile) return;
-    onTrim(trimTimes.start, trimTimes.end);
-    setIsEditing(false);
+    setIsTrimming(true);
+    try {
+      if (audioFile) await onTrim(trimTimes.start, trimTimes.end);;
+      setIsEditing(false);
+    }
+    finally {
+      setIsTrimming(false);
+    }
   };
 
   return (
@@ -127,27 +144,22 @@ export default function AudioField({
       )}
       <div className="flex gap-2 mt-2">
         {audioFile && (
-          <button
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => inputRef.current?.click()}
-            className="text-xs bg-blue-500 text-white px-2 py-1 rounded"
           >
             Replace
-          </button>
+          </Button>
         )}
         {audioFile && (
           <>
-            <button
-              onClick={handleEdit}
-              className="text-xs bg-yellow-500 text-white px-2 py-1 rounded"
-            >
+            <Button variant="warning" size="sm" onClick={handleEdit}>
               Edit
-            </button>
-            <button
-              onClick={onDelete}
-              className="text-xs bg-red-500 text-white px-2 py-1 rounded"
-            >
+            </Button>
+            <Button variant="error" size="sm" loading={isDeleting} onClick={handleDelete}>
               Delete
-            </button>
+            </Button>
           </>
         )}
       </div>
@@ -184,18 +196,16 @@ export default function AudioField({
               }}
             />
             <div className="mt-4 flex justify-end gap-2">
-              <button
+              <Button
+                variant="secondary"
+                size="md"
                 onClick={() => setIsEditing(false)}
-                className="bg-gray-400 text-white px-3 py-1 rounded"
               >
                 Cancel
-              </button>
-              <button
-                onClick={handleTrim}
-                className="bg-green-600 text-white px-4 py-1 rounded"
-              >
+              </Button>
+              <Button variant="primary" size="md" loading={isTrimming} onClick={handleTrim}>
                 Save Trimmed
-              </button>
+              </Button>
             </div>
           </div>
         </div>

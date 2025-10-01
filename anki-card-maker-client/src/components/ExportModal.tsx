@@ -2,6 +2,7 @@ import { useState } from "react";
 import JSZip from "jszip";
 
 import type { Note } from "../models/Note";
+import Button from "./ui/Button";
 
 type Props = {
   notes: Note[];
@@ -107,12 +108,13 @@ export default function ExportModal({ notes }: Props) {
 
   return (
     <>
-      <button
-        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+      <Button
+        variant="primary"
+        size="lg"
         onClick={() => setIsOpen(true)}
       >
         Export Notes
-      </button>
+      </Button>
 
       {isOpen && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
@@ -125,21 +127,22 @@ export default function ExportModal({ notes }: Props) {
               <strong>Media files:</strong> {mediaFiles.length}
             </p>
             <div className="flex justify-end space-x-2">
-              <button
-                className="text-gray-600 hover:text-gray-800"
+              <Button
+                variant="secondary"
+                size="md"
                 onClick={() => setIsOpen(false)}
               >
                 Cancel
-              </button>
-              <button
-                className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+              </Button>
+              <Button
+                variant="primary"
                 onClick={() => {
                   handleExport();
                   setIsOpen(false);
                 }}
               >
-                Download .TSV
-              </button>
+                Download
+              </Button>
             </div>
           </div>
         </div>

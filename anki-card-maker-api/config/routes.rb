@@ -23,6 +23,8 @@ Rails.application.routes.draw do
   patch "/decks/:deck_id/notes/:id", to: "notes#update"
   delete "/decks/:deck_id/notes/:id", to: "notes#delete"
   post "/decks/:deck_id/notes/:id/tts", to: "notes#tts"
+  post "/decks/:deck_id/notes/:id/trim", to: "notes#trim"
+  post "/decks/:deck_id/notes/:id/translate", to: "notes#translate"
 
   get 'auth/:provider/callback', to: 'sessions#create'
   get '/auth/failure', to: 'sessions#failure'

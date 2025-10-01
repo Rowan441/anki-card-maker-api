@@ -121,8 +121,13 @@ class NotesController < ApplicationController
         render json: { error: 'Note or audio not found' }, status: :not_found
     end 
 
-    trimmed_file = TrimService.trim(note.audio, start_ms, end_ms)
-    note.audio.attach trimmed_file
+    trimmed_file = TrimService.trim(note.audio.blob, start_ms, end_ms)
+
+    note.audio.attach(
+      io: trimmed_file,
+      filename: "#{SecureRandom.hex(8)}.mp3",
+      content_type: "audio/mpeg"
+    )
 
     # Return note with updated audio URL
     render json: note_json(note), status: :ok

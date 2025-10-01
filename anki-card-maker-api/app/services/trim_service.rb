@@ -1,7 +1,7 @@
 require "google/cloud/translate"
 
 class TrimService
-    def self.trim(audio:, start_ms:, end_ms:)
+    def self.trim(audio, start_ms, end_ms)
         audio_path = normalize_source(audio)
 
         tmpfile = Tempfile.new(["trimmed_", ".mp3"], Rails.root.join("tmp"))
@@ -33,7 +33,7 @@ class TrimService
                 file = Tempfile.new(["blob", ".#{source.filename.extension}"], binmode: true)
                 file.write(source.download)
                 file.rewind
-                file
+                file.path
             when ActiveStorage::Attachment
                 normalize_source(source.blob)
             when String

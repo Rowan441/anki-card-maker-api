@@ -6,11 +6,7 @@ class TrimAudioController < ApplicationController
         start_ms = params.require(:start).to_i
         end_ms = params.require(:end).to_i
 
-        trimmed_file = TrimService.trim(
-          audio: file,
-          start_ms: start_ms,
-          end_ms: end_ms
-        )
+        trimmed_file = TrimService.trim(file, start_ms, end_ms)
 
         send_data trimmed_file.read,
               type: "audio/mpeg",

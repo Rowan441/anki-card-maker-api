@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
+import Button from "../ui/Button";
 
 type Props = {
   imageUrl?: string;
   onReplace: (file: File) => void;
-  onDelete: () => void;
+  onDelete: () => void | Promise<void>;
 };
 
 export default function ImageField({ imageUrl, onReplace, onDelete }: Props) {
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const onDrop = (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -24,6 +26,15 @@ export default function ImageField({ imageUrl, onReplace, onDelete }: Props) {
   },
   });
 
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await onDelete();
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center">
       {imageUrl ? (
@@ -35,12 +46,9 @@ export default function ImageField({ imageUrl, onReplace, onDelete }: Props) {
             onClick={() => setModalOpen(true)}
           />
           <div className="flex space-x-2 mb-2">
-            <button
-              className="text-xs bg-red-500 text-white px-2 py-1 rounded"
-              onClick={onDelete}
-            >
+            <Button variant="error" size="sm" onClick={handleDelete} loading={isDeleting}>
               Delete
-            </button>
+            </Button>
           </div>
         </>
       ) : (

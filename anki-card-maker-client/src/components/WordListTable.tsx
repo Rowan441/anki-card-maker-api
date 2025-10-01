@@ -21,6 +21,7 @@ import type { Note, NoteResponseApi, NoteUploadApi } from "../models/Note";
 import AudioField from "./table/AudioField";
 
 import DropdownMenu from "./ui/DropdownMenu";
+import Button from "./ui/Button";
 import { transliterate } from "../utils/transliterate";
 import { translateText } from "../utils/AmazonTranslate";
 import AutofillColumnButton from "./ui/AutocompleteButton";
@@ -510,13 +511,14 @@ export default function WordListTable() {
             </th>
             <th colSpan={columns.length - 3}></th>
             <th colSpan={1} className="p-2 border bg-gray-50">
-              <button
+              <Button
+                variant="error"
+                size="md"
                 onClick={handleBulkDelete}
-                className="bg-red-500 text-white px-3 py-1 rounded disabled:opacity-50"
                 disabled={table.getSelectedRowModel().rows.length === 0}
               >
                 Delete
-              </button>
+              </Button>
             </th>
           </tr>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -601,7 +603,7 @@ export default function WordListTable() {
                   const res = await AudioService.trim({audio_file: newEntry.audioFile, start_ms: start.toString(), end_ms: end.toString()});
                   const trimmedBlob = await res.blob();
                   const trimmedFile = new File([trimmedBlob], "trimmed_audio.mp3", { type: "audio/mpeg" });
-                  debugger;
+                  
                   setNewEntry({
                     ...newEntry,
                     audioFile: trimmedFile,
@@ -640,19 +642,17 @@ export default function WordListTable() {
             </td>
 
             <td className="p-2 border text-center" colSpan={2}>
-              <button
+              <Button
+                variant="primary"
+                size="md"
                 onClick={() => {
                   if (!newEntry.target_text && !newEntry.source_text) return;
                   handleAddRow();
                 }}
                 disabled={!newEntry.target_text && !newEntry.source_text}
-                className="bg-green-500 text-white px-3 py-1 rounded 
-                disabled:bg-gray-400 disabled:cursor-not-allowed disabled:text-gray-200
-                hover:bg-green-600 disabled:hover:bg-gray-400
-                transition-colors duration-200 ease-in-out"
               >
-                + Add
-              </button>
+                Add
+              </Button>
             </td>
           </tr>
         </tbody>
