@@ -191,21 +191,11 @@ export default function WordListTable() {
   const handleKeyDown = (
     keyEvent: KeyboardEvent,
     colIndex: number,
-    rowIndex?: number
   ) => {
     if (keyEvent.key !== "Enter") return;
-    if (!rowIndex && rowIndex !== 0) {
-      // If rowIndex is not provided, it means we are in the new entry row
-      handleAddRow();
-      newInputRefs.current[colIndex]?.focus();
-      return;
-    }
-    const next = inputRefs.current[rowIndex + 1]?.[colIndex];
-    if (next) {
-      next.focus();
-    } else {
-      newInputRefs.current[colIndex]?.focus();
-    }
+    keyEvent.preventDefault(); // Prevent newline from being added
+    handleAddRow();
+    newInputRefs.current[colIndex]?.focus();
   };
 
   const columns: ColumnDef<Note>[] = useMemo(
@@ -222,7 +212,6 @@ export default function WordListTable() {
             }}
             className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none overflow-hidden"
             value={getValue() as string}
-            onKeyDown={(e) => handleKeyDown(e, 0, row.index)}
             onChange={(e) => {
               autoResizeTextarea(e.target);
               handleUpdate(row.original.id, { target_text: e.target.value });
@@ -251,7 +240,6 @@ export default function WordListTable() {
             }}
             className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none overflow-hidden"
             value={getValue() as string}
-            onKeyDown={(e) => handleKeyDown(e, 1, row.index)}
             onChange={(e) => {
               autoResizeTextarea(e.target);
               handleUpdate(row.original.id, { romanization: e.target.value });
@@ -280,7 +268,6 @@ export default function WordListTable() {
             }}
             className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none overflow-hidden"
             value={getValue() as string}
-            onKeyDown={(e) => handleKeyDown(e, 2, row.index)}
             onChange={(e) => {
               autoResizeTextarea(e.target);
               handleUpdate(row.original.id, { source_text: e.target.value });
