@@ -65,8 +65,34 @@ export default function WordListTable() {
     romanization: "",
     source_text: "",
   });
-  const inputRefs = useRef<(HTMLInputElement | null)[][]>([]);
-  const newInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const inputRefs = useRef<(HTMLInputElement | HTMLTextAreaElement | null)[][]>([]);
+  const newInputRefs = useRef<(HTMLInputElement | HTMLTextAreaElement | null)[]>([]);
+
+  // Auto-resize textarea to fit content
+  const autoResizeTextarea = (textarea: HTMLTextAreaElement) => {
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  };
+
+  // Auto-resize all textareas when notes data changes (for initial load and autofill)
+  useEffect(() => {
+    inputRefs.current.forEach((row) => {
+      row.forEach((element) => {
+        if (element instanceof HTMLTextAreaElement) {
+          autoResizeTextarea(element);
+        }
+      });
+    });
+  }, [notes]);
+
+  // Auto-resize new entry row textareas when newEntry changes
+  useEffect(() => {
+    newInputRefs.current.forEach((element) => {
+      if (element instanceof HTMLTextAreaElement) {
+        autoResizeTextarea(element);
+      }
+    });
+  }, [newEntry]);
 
   const handleUpdate = async (
     id: number,
@@ -188,18 +214,19 @@ export default function WordListTable() {
         header: "Gurmukhi",
         accessorKey: "target_text",
         cell: ({ row, getValue }) => (
-          <input
+          <textarea
             ref={(el) => {
               if (!inputRefs.current[row.index])
                 inputRefs.current[row.index] = [];
-              inputRefs.current[row.index][0] = el;
+              inputRefs.current[row.index][0] = el as any;
             }}
-            className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
+            className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none overflow-hidden"
             value={getValue() as string}
             onKeyDown={(e) => handleKeyDown(e, 0, row.index)}
-            onChange={(e) =>
-              handleUpdate(row.original.id, { target_text: e.target.value })
-            }
+            onChange={(e) => {
+              autoResizeTextarea(e.target);
+              handleUpdate(row.original.id, { target_text: e.target.value });
+            }}
             onBlur={(e) => {
               handleUpdate(row.original.id, { target_text: e.target.value });
               NotesService.update({
@@ -208,6 +235,7 @@ export default function WordListTable() {
                 payload: { target_text: e.target.value },
               });
             }}
+            rows={1}
           />
         ),
       },
@@ -215,26 +243,28 @@ export default function WordListTable() {
         header: "Transliteration",
         accessorKey: "romanization",
         cell: ({ row, getValue }) => (
-          <input
+          <textarea
             ref={(el) => {
               if (!inputRefs.current[row.index])
                 inputRefs.current[row.index] = [];
-              inputRefs.current[row.index][1] = el;
+              inputRefs.current[row.index][1] = el as any;
             }}
-            className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
+            className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none overflow-hidden"
             value={getValue() as string}
             onKeyDown={(e) => handleKeyDown(e, 1, row.index)}
-            onChange={(e) =>
-              handleUpdate(row.original.id, { romanization: e.target.value })
-            }
+            onChange={(e) => {
+              autoResizeTextarea(e.target);
+              handleUpdate(row.original.id, { romanization: e.target.value });
+            }}
             onBlur={(e) => {
-              handleUpdate(row.original.id, { target_text: e.target.value });
+              handleUpdate(row.original.id, { romanization: e.target.value });
               NotesService.update({
                 deck_id: DECK_ID,
                 id: row.original.id,
                 payload: { romanization: e.target.value },
               });
             }}
+            rows={1}
           />
         ),
       },
@@ -242,26 +272,28 @@ export default function WordListTable() {
         header: "English",
         accessorKey: "source_text",
         cell: ({ row, getValue }) => (
-          <input
+          <textarea
             ref={(el) => {
               if (!inputRefs.current[row.index])
                 inputRefs.current[row.index] = [];
-              inputRefs.current[row.index][2] = el;
+              inputRefs.current[row.index][2] = el as any;
             }}
-            className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
+            className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none overflow-hidden"
             value={getValue() as string}
             onKeyDown={(e) => handleKeyDown(e, 2, row.index)}
-            onChange={(e) =>
-              handleUpdate(row.original.id, { source_text: e.target.value })
-            }
+            onChange={(e) => {
+              autoResizeTextarea(e.target);
+              handleUpdate(row.original.id, { source_text: e.target.value });
+            }}
             onBlur={(e) => {
-              handleUpdate(row.original.id, { target_text: e.target.value });
+              handleUpdate(row.original.id, { source_text: e.target.value });
               NotesService.update({
                 deck_id: DECK_ID,
                 id: row.original.id,
-                payload: { romanization: e.target.value },
+                payload: { source_text: e.target.value },
               });
             }}
+            rows={1}
           />
         ),
       },
@@ -511,7 +543,7 @@ export default function WordListTable() {
                 }}
               />
             </th>
-            <th colSpan={columns.length - 3}></th>
+            <th colSpan={1}></th>
             <th colSpan={1} className="px-2 py-1 border border-default bg-surface-secondary">
               <Button
                 variant="error"
@@ -551,45 +583,51 @@ export default function WordListTable() {
           ))}
           <tr className="bg-surface-secondary">
             <td className="px-2 py-1 border border-default">
-              <input
+              <textarea
                 ref={(el) => {
-                  newInputRefs.current[0] = el;
+                  newInputRefs.current[0] = el as any;
                 }}
-                className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none overflow-hidden"
                 placeholder="Gurmukhi"
                 value={newEntry.target_text}
-                onChange={(e) =>
-                  setNewEntry({ ...newEntry, target_text: e.target.value })
-                }
+                onChange={(e) => {
+                  autoResizeTextarea(e.target);
+                  setNewEntry({ ...newEntry, target_text: e.target.value });
+                }}
                 onKeyDown={(e) => handleKeyDown(e, 0)}
+                rows={1}
               />
             </td>
             <td className="px-2 py-1 border border-default">
-              <input
+              <textarea
                 ref={(el) => {
-                  newInputRefs.current[1] = el;
+                  newInputRefs.current[1] = el as any;
                 }}
-                className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none overflow-hidden"
                 placeholder="Transliteration"
                 value={newEntry.romanization}
-                onChange={(e) =>
-                  setNewEntry({ ...newEntry, romanization: e.target.value })
-                }
+                onChange={(e) => {
+                  autoResizeTextarea(e.target);
+                  setNewEntry({ ...newEntry, romanization: e.target.value });
+                }}
                 onKeyDown={(e) => handleKeyDown(e, 1)}
+                rows={1}
               />
             </td>
             <td className="px-2 py-1 border border-default">
-              <input
+              <textarea
                 ref={(el) => {
-                  newInputRefs.current[2] = el;
+                  newInputRefs.current[2] = el as any;
                 }}
-                className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none overflow-hidden"
                 placeholder="English"
                 value={newEntry.source_text}
-                onChange={(e) =>
-                  setNewEntry({ ...newEntry, source_text: e.target.value })
-                }
+                onChange={(e) => {
+                  autoResizeTextarea(e.target);
+                  setNewEntry({ ...newEntry, source_text: e.target.value });
+                }}
                 onKeyDown={(e) => handleKeyDown(e, 2)}
+                rows={1}
               />
             </td>
             <td className="px-2 py-1 border border-default">
@@ -602,6 +640,7 @@ export default function WordListTable() {
                   });
                 }}
                 onTrim={async (start, end) => {
+                  if (!newEntry.audioFile) return;
                   const res = await AudioService.trim({audio_file: newEntry.audioFile, start_ms: start.toString(), end_ms: end.toString()});
                   const trimmedBlob = await res.blob();
                   const trimmedFile = new File([trimmedBlob], "trimmed_audio.mp3", { type: "audio/mpeg" });
