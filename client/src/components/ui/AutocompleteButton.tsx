@@ -18,17 +18,18 @@ export default function AutofillColumnButton({
   autofillLogic,
 }: AutofillColumnButtonProps) {
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isHovering, setIsHovering] = React.useState(false);
+
+  const getOperatingRows = () => {
+    return table.getSelectedRowModel().rows.length !== 0
+      ? table.getSelectedRowModel().rows
+      : table.getRowModel().rows.filter((row: any) => !Boolean(row.getValue(column)));
+  };
 
   const handleClick = async () => {
     setIsLoading(true);
     try {
-    const operatingIds = (
-      table.getSelectedRowModel().rows.length !== 0
-        ? table.getSelectedRowModel().rows
-        : table
-            .getRowModel()
-            .rows.filter((row: any) => !Boolean(row.getValue(column)))
-    ).map((r) => r.original.id);
+    const operatingIds = getOperatingRows().map((r) => r.original.id);
 
     const updatedNotes = await Promise.all(
       notes
@@ -37,11 +38,47 @@ export default function AutofillColumnButton({
           return await autofillLogic(note);
         })
     );
-    
+
     setNotes(updatedNotes);
-    } finally { 
+    } finally {
       setIsLoading(false);
     }
+  };
+
+  // Add highlight class to affected cells on hover
+  React.useEffect(() => {
+    if (!isHovering) return;
+
+    const operatingRows = getOperatingRows();
+    const rowIndices = operatingRows.map((r) => r.index);
+
+    // Add highlight class to cells
+    rowIndices.forEach((index) => {
+      const cell = document.querySelector(
+        `tbody tr:nth-child(${index + 1}) td:nth-child(${getColumnIndex()})`
+      );
+      if (cell) {
+        cell.classList.add("autofill-highlight");
+      }
+    });
+
+    // Cleanup on unhover
+    return () => {
+      document.querySelectorAll(".autofill-highlight").forEach((el) => {
+        el.classList.remove("autofill-highlight");
+      });
+    };
+  }, [isHovering]);
+
+  const getColumnIndex = () => {
+    // Map column names to their index (1-based for CSS nth-child)
+    const columnMap: Record<string, number> = {
+      target_text: 1,
+      romanization: 2,
+      source_text: 3,
+      audio_url: 4,
+    };
+    return columnMap[column] || 1;
   };
 
   return (
@@ -49,9 +86,11 @@ export default function AutofillColumnButton({
       type="button"
       disabled={isLoading}
       onClick={handleClick}
-      className={`inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2
-        text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50
-        transition-colors duration-150
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      className={`inline-flex w-full justify-center gap-x-1.5 rounded-md bg-blue-500 px-3 py-2
+        text-sm font-semibold text-white dark:text-gray-100
+        hover:bg-blue-600 transition-colors duration-150
         ${isLoading ? "cursor-progress opacity-50" : ""}`}
     >
       {isLoading && (

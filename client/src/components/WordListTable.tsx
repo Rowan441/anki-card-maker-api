@@ -503,7 +503,7 @@ export default function WordListTable() {
             </th>
             <th colSpan={1} className="px-2 py-1 border border-default bg-surface-secondary">
               <AutofillColumnButton
-                column="audio"
+                column="audio_url"
                 table={table}
                 notes={notes}
                 setNotes={(notes) => {
