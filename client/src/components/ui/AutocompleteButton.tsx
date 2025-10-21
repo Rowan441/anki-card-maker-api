@@ -54,7 +54,7 @@ export default function AutofillColumnButton({
         transition-colors duration-150
         ${isLoading ? "cursor-progress opacity-50" : ""}`}
     >
-      {loading && (
+      {isLoading && (
         <svg
           className="animate-spin h-4 w-4 absolute inset-0 m-auto"
           xmlns="http://www.w3.org/2000/svg"
