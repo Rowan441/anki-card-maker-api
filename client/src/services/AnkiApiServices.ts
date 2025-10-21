@@ -1,4 +1,5 @@
 import type { NoteResponseApi, NoteUploadApi } from "../models/Note";
+import type { Deck, DeckCreatePayload, DeckUpdatePayload } from "../models/Deck";
 
 export type TextField = "target_text" | "source_text";
 
@@ -104,25 +105,29 @@ export const NotesService = {
 
 // CRUD for decks
 export const DecksService = {
-  getAll() {
+  index(): Promise<Deck[]> {
     return request(`/decks`);
   },
-  get(id: number) {
+
+  show(id: number): Promise<Deck> {
     return request(`/decks/${id}`);
   },
-  create(payload: any) {
+
+  create(payload: DeckCreatePayload): Promise<Deck> {
     return request(`/decks`, {
       method: "POST",
       body: JSON.stringify(payload),
     });
   },
-  update(id: number, payload: any) {
+
+  update(id: number, payload: DeckUpdatePayload): Promise<Deck> {
     return request(`/decks/${id}`, {
       method: "PATCH",
       body: JSON.stringify(payload),
     });
   },
-  delete(id: number) {
+
+  delete(id: number): Promise<{ message: string }> {
     return request(`/decks/${id}`, {
       method: "DELETE",
     });
