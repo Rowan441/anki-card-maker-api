@@ -1,11 +1,11 @@
 // components/AudioField.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useDropzone } from "react-dropzone";
 import Mirt from "react-mirt";
 import "react-mirt/dist/css/react-mirt.css";
 import { formatMs } from "../../utils/formatMs";
 import { AudioService } from "../../services/AnkiApiServices";
 import Button from "../ui/Button";
+import DropZone from "../ui/DropZone";
 
 
 interface AudioFieldProps {
@@ -76,12 +76,6 @@ export default function AudioField({
     if (file) onFileUpload(file);
   };
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple: false,
-    accept: { "audio/*": [] },
-  });
-
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
@@ -109,40 +103,13 @@ export default function AudioField({
   };
 
   return (
-    <div className="w-72">
+    <div className="flex flex-col items-center justify-center gap-2">
       {audioFile ? (
-        <div className="flex items-center gap-2 ">
-          <audio controls src={audioUrl} className="h-8" />
-        </div>
+        <audio controls src={audioUrl} className="h-8" />
       ) : (
-        <div
-          {...getRootProps()}
-          className={`p-3 my-2 border-2 border-dashed rounded-md text-center cursor-pointer transition ${
-            isDragActive && !audioFile
-              ? "border-blue-500 bg-blue-50"
-              : "border-gray-500 hover:border-blue-400"
-          }`}
-        >
-          <input {...getInputProps()} />
-          <div className="flex flex-col items-center justify-center text-gray-500">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8 text-blue-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 16V8m0 0l-4 4m4-4l4 4m5 4V8m0 0l-4 4m4-4l4 4"
-              />
-            </svg>
-          </div>
-        </div>
+        <DropZone onDrop={onDrop} accept={{ "audio/*": [] }} />
       )}
-      <div className="flex gap-2 mt-2">
+      <div className="flex gap-2">
         {audioFile && (
           <Button
             variant="primary"
