@@ -33,9 +33,12 @@ import {
 import { useOnlineStatus } from "../provider/OnlineStatusProvider";
 
 const API_BASE = import.meta.env.VITE_API_URL;
-const DECK_ID = 3;
 
-export default function WordListTable() {
+interface WordListTableProps {
+  deckId: number;
+}
+
+export default function WordListTable({ deckId }: WordListTableProps) {
   const isOnline = useOnlineStatus();
   // Replace with your initial words data or import from a file
   const [notes, setNotes] = useState<Note[]>([] as Note[]);
@@ -49,7 +52,7 @@ export default function WordListTable() {
     async function fetchNotes() {
       setLoadingTableRows(true);
       try {
-        const fetchedNotes = await NotesService.index({ deck_id: 3 });
+        const fetchedNotes = await NotesService.index({ deck_id: deckId });
         setNotes(fetchedNotes);
       } catch (err) {
         // handle error if needed
@@ -58,7 +61,7 @@ export default function WordListTable() {
       }
     }
     fetchNotes();
-  }, []);
+  }, [deckId]);
 
   const [newEntry, setNewEntry] = useState<Partial<Note>>({
     target_text: "",
@@ -140,7 +143,7 @@ export default function WordListTable() {
     table.resetRowSelection();
     setNotes((prev) => prev.filter((note) => !selectedIds.has(note.id)));
     selectedIds.forEach((id) => {
-      NotesService.delete({ deck_id: DECK_ID, id }).catch((err) => {
+      NotesService.delete({ deck_id: deckId, id }).catch((err) => {
         console.error("Failed to delete note:", err);
       });
     });
@@ -154,7 +157,7 @@ export default function WordListTable() {
       audio: newEntry.audioFile,
       image: newEntry.imageFile
     };
-    const newNote = await NotesService.create({ deck_id: 3, payload: uploadNote }).catch((err) => {
+    const newNote = await NotesService.create({ deck_id: deckId, payload: uploadNote }).catch((err) => {
       console.error("Failed to create note:", err);
       return;
     });
@@ -219,7 +222,7 @@ export default function WordListTable() {
             onBlur={(e) => {
               handleUpdate(row.original.id, { target_text: e.target.value });
               NotesService.update({
-                deck_id: DECK_ID,
+                deck_id: deckId,
                 id: row.original.id,
                 payload: { target_text: e.target.value },
               });
@@ -247,7 +250,7 @@ export default function WordListTable() {
             onBlur={(e) => {
               handleUpdate(row.original.id, { romanization: e.target.value });
               NotesService.update({
-                deck_id: DECK_ID,
+                deck_id: deckId,
                 id: row.original.id,
                 payload: { romanization: e.target.value },
               });
@@ -275,7 +278,7 @@ export default function WordListTable() {
             onBlur={(e) => {
               handleUpdate(row.original.id, { source_text: e.target.value });
               NotesService.update({
-                deck_id: DECK_ID,
+                deck_id: deckId,
                 id: row.original.id,
                 payload: { source_text: e.target.value },
               });
@@ -292,7 +295,7 @@ export default function WordListTable() {
             audio={row.getValue("audio_url")}
             onFileUpload={async (file: File) => {
               const updatedNote = await NotesService.update({
-                deck_id: DECK_ID,
+                deck_id: deckId,
                 id: row.original.id,
                 payload: { audio: file },
               });
@@ -302,7 +305,7 @@ export default function WordListTable() {
             }}
             onTrim={async (start, end) => {
               const updatedNote = await NotesService.trim({
-                deck_id: 3,
+                deck_id: deckId,
                 id: row.original.id,
                 start: start.toString(),
                 end: end.toString(),
@@ -314,7 +317,7 @@ export default function WordListTable() {
             }}
             onDelete={async () => {
               await NotesService.update({
-                deck_id: DECK_ID,
+                deck_id: deckId,
                 id: row.original.id,
                 payload: { remove_audio: true },
               });
@@ -336,7 +339,7 @@ export default function WordListTable() {
             }
             onReplace={async (file) => {
               const updatedNote = await NotesService.update({
-                deck_id: DECK_ID,
+                deck_id: deckId,
                 id: row.original.id,
                 payload: { image: file },
               });
@@ -346,7 +349,7 @@ export default function WordListTable() {
             }}
             onDelete={async () => {
               await NotesService.update({
-                deck_id: DECK_ID,
+                deck_id: deckId,
                 id: row.original.id,
                 payload: { remove_image: true },
               });
@@ -423,7 +426,7 @@ export default function WordListTable() {
                   notes.forEach((autofilledNote) => {
                     handleUpdate(autofilledNote.id, autofilledNote);
                     NotesService.update({
-                      deck_id: DECK_ID,
+                      deck_id: deckId,
                       id: autofilledNote.id,
                       payload: {
                         target_text: autofilledNote.target_text,
@@ -453,7 +456,7 @@ export default function WordListTable() {
                   notes.forEach((autofilledNote) => {
                     handleUpdate(autofilledNote.id, autofilledNote);
                     NotesService.update({
-                      deck_id: DECK_ID,
+                      deck_id: deckId,
                       id: autofilledNote.id,
                       payload: {
                         romanization: autofilledNote.romanization,
@@ -480,7 +483,7 @@ export default function WordListTable() {
                   notes.forEach((autofilledNote) => {
                     handleUpdate(autofilledNote.id, autofilledNote);
                     NotesService.update({
-                      deck_id: DECK_ID,
+                      deck_id: deckId,
                       id: autofilledNote.id,
                       payload: {
                         source_text: autofilledNote.source_text,
@@ -510,7 +513,7 @@ export default function WordListTable() {
                   notes.forEach((autofilledNote) => {
                     handleUpdate(autofilledNote.id, autofilledNote);
                     NotesService.update({
-                      deck_id: DECK_ID,
+                      deck_id: deckId,
                       id: autofilledNote.id,
                       payload: {
                         audio: autofilledNote.audioFile,
@@ -520,7 +523,7 @@ export default function WordListTable() {
                 }}
                 autofillLogic={async (note) => {
                   const updatedNote = await NotesService.tts({
-                    deck_id: DECK_ID,
+                    deck_id: deckId,
                     id: note.id,
                   });
                   return {
