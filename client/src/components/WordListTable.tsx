@@ -194,7 +194,7 @@ export default function WordListTable() {
                 inputRefs.current[row.index] = [];
               inputRefs.current[row.index][0] = el;
             }}
-            className="border p-1 rounded w-full"
+            className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
             value={getValue() as string}
             onKeyDown={(e) => handleKeyDown(e, 0, row.index)}
             onChange={(e) =>
@@ -221,7 +221,7 @@ export default function WordListTable() {
                 inputRefs.current[row.index] = [];
               inputRefs.current[row.index][1] = el;
             }}
-            className="border p-1 rounded w-full"
+            className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
             value={getValue() as string}
             onKeyDown={(e) => handleKeyDown(e, 1, row.index)}
             onChange={(e) =>
@@ -248,7 +248,7 @@ export default function WordListTable() {
                 inputRefs.current[row.index] = [];
               inputRefs.current[row.index][2] = el;
             }}
-            className="border p-1 rounded w-full"
+            className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
             value={getValue() as string}
             onKeyDown={(e) => handleKeyDown(e, 2, row.index)}
             onChange={(e) =>
@@ -345,7 +345,7 @@ export default function WordListTable() {
           <>
             <input
               type="checkbox"
-              className="h-4 w-4 m-2"
+              className="h-5 w-5 cursor-pointer"
               checked={table.getIsAllRowsSelected()}
               ref={(el) => {
                 if (el)
@@ -361,7 +361,7 @@ export default function WordListTable() {
         cell: ({ row }) => (
           <input
             type="checkbox"
-            className="h-6 w-6"
+            className="h-5 w-5 cursor-pointer"
             checked={row.getIsSelected()}
             onChange={row.getToggleSelectedHandler()}
           />
@@ -383,19 +383,19 @@ export default function WordListTable() {
   });
 
   return (
-    <div className="bg-white p-4 rounded shadow">
-      <h1 className="text-xl font-semibold mb-4">Word List Table</h1>
-      {isOnline ? (
-        "online :)"
-      ) : (
-        <div className="bg-red-100 text-red-800 p-2 rounded mb-4">
-          You are currently offline. Some features may be unavailable.
-        </div>
-      )}
-      <table className="table-auto w-full border bg-gray-300">
+    <div className="bg-surface p-2 rounded-lg shadow-md transition-colors">
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="text-lg font-semibold text-default">Word List</h1>
+        {!isOnline && (
+          <div className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 text-xs px-2 py-1 rounded">
+            Offline
+          </div>
+        )}
+      </div>
+      <table className="table-auto w-full border border-default bg-surface">
         <thead>
           <tr>
-            <th colSpan={1} className="p-2 border bg-gray-50">
+            <th colSpan={1} className="px-2 py-1 border border-default bg-surface-secondary">
               <AutofillColumnButton
                 column="target_text"
                 table={table}
@@ -425,7 +425,7 @@ export default function WordListTable() {
                 }}
               />
             </th>
-            <th colSpan={1} className="p-2 border bg-gray-50">
+            <th colSpan={1} className="px-2 py-1 border border-default bg-surface-secondary">
               <AutofillColumnButton
                 column="romanization"
                 table={table}
@@ -452,7 +452,7 @@ export default function WordListTable() {
                 })}
               />
             </th>
-            <th colSpan={1} className="p-2 border bg-gray-50">
+            <th colSpan={1} className="px-2 py-1 border border-default bg-surface-secondary">
               <AutofillColumnButton
                 column="source_text"
                 table={table}
@@ -482,7 +482,7 @@ export default function WordListTable() {
                 }}
               />
             </th>
-            <th colSpan={1} className="p-2 border bg-gray-50">
+            <th colSpan={1} className="px-2 py-1 border border-default bg-surface-secondary">
               <AutofillColumnButton
                 column="audio"
                 table={table}
@@ -512,10 +512,10 @@ export default function WordListTable() {
               />
             </th>
             <th colSpan={columns.length - 3}></th>
-            <th colSpan={1} className="p-2 border bg-gray-50">
+            <th colSpan={1} className="px-2 py-1 border border-default bg-surface-secondary">
               <Button
                 variant="error"
-                size="md"
+                size="sm"
                 onClick={handleBulkDelete}
                 disabled={table.getSelectedRowModel().rows.length === 0}
               >
@@ -526,7 +526,7 @@ export default function WordListTable() {
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th key={header.id} className="border bg-gray-100">
+                <th key={header.id} className="px-2 py-1 border border-default bg-surface-tertiary text-sm font-medium text-default">
                   {flexRender(
                     header.column.columnDef.header,
                     header.getContext()
@@ -540,22 +540,22 @@ export default function WordListTable() {
           {table.getRowModel().rows.map((row) => (
             <tr
               key={row.id}
-              className={row.getIsSelected() ? "bg-blue-50" : ""}
+              className={row.getIsSelected() ? "bg-blue-50 dark:bg-blue-950" : "hover:bg-gray-50 dark:hover:bg-gray-700"}
             >
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="px-2 my-2 border">
+                <td key={cell.id} className="px-2 py-1 border border-default">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
             </tr>
           ))}
-          <tr className="bg-gray-100">
-            <td className="p-2 border">
+          <tr className="bg-surface-secondary">
+            <td className="px-2 py-1 border border-default">
               <input
                 ref={(el) => {
                   newInputRefs.current[0] = el;
                 }}
-                className="border p-1 rounded w-full"
+                className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
                 placeholder="Gurmukhi"
                 value={newEntry.target_text}
                 onChange={(e) =>
@@ -564,12 +564,12 @@ export default function WordListTable() {
                 onKeyDown={(e) => handleKeyDown(e, 0)}
               />
             </td>
-            <td className="p-2 border">
+            <td className="px-2 py-1 border border-default">
               <input
                 ref={(el) => {
                   newInputRefs.current[1] = el;
                 }}
-                className="border p-1 rounded w-full"
+                className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
                 placeholder="Transliteration"
                 value={newEntry.romanization}
                 onChange={(e) =>
@@ -578,12 +578,12 @@ export default function WordListTable() {
                 onKeyDown={(e) => handleKeyDown(e, 1)}
               />
             </td>
-            <td className="p-2 border">
+            <td className="px-2 py-1 border border-default">
               <input
                 ref={(el) => {
                   newInputRefs.current[2] = el;
                 }}
-                className="border p-1 rounded w-full"
+                className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
                 placeholder="English"
                 value={newEntry.source_text}
                 onChange={(e) =>
@@ -592,7 +592,7 @@ export default function WordListTable() {
                 onKeyDown={(e) => handleKeyDown(e, 2)}
               />
             </td>
-            <td className="p-2 border">
+            <td className="px-2 py-1 border border-default">
               <AudioField
                 audio={newEntry.audioFile}
                 onFileUpload={(file) => {
@@ -620,7 +620,7 @@ export default function WordListTable() {
                 }
               />
             </td>
-            <td className="p-2 border">
+            <td className="px-2 py-1 border border-default">
               <ImageField
                 imageUrl={
                   newEntry.image_url
@@ -643,10 +643,10 @@ export default function WordListTable() {
               />
             </td>
 
-            <td className="p-2 border text-center" colSpan={2}>
+            <td className="px-2 py-1 border border-gray-200 dark:border-gray-700 text-center" colSpan={2}>
               <Button
                 variant="primary"
-                size="md"
+                size="sm"
                 loading={isAddingRow}
                 onClick={ async () => {
                   setIsAddingRow(true)
@@ -666,7 +666,7 @@ export default function WordListTable() {
         </tbody>
       </table>
 
-      <div className="mt-4">
+      <div className="mt-2">
         <ExportModal notes={notes} />
       </div>
     </div>
