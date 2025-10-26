@@ -17,13 +17,11 @@ import {
 
 import ImageField from "./table/ImageField";
 import ExportModal from "./ExportModal";
-import type { Note, NoteResponseApi, NoteUploadApi } from "../models/Note";
+import type { Note, NoteUploadApi } from "../models/Note";
 import AudioField from "./table/AudioField";
 
-import DropdownMenu from "./ui/DropdownMenu";
 import Button from "./ui/Button";
 import { transliterate } from "../utils/transliterate";
-import { translateText } from "../utils/AmazonTranslate";
 import AutofillColumnButton from "./ui/AutocompleteButton";
 import {
   AudioService,
@@ -31,8 +29,6 @@ import {
   TranslationService,
 } from "../services/AnkiApiServices";
 import { useOnlineStatus } from "../provider/OnlineStatusProvider";
-
-const API_BASE = import.meta.env.VITE_API_URL;
 
 interface WordListTableProps {
   deckId: number;
@@ -166,29 +162,6 @@ export default function WordListTable({ deckId }: WordListTableProps) {
       setNewEntry({ target_text: "", romanization: "", source_text: "" });
     }
 
-  };
-
-  const autoCompleteNote = async (note: Note) => {
-    if (!note.source_text) {
-      note.source_text = await TranslationService.translate({
-        text: note.target_text,
-        source_language: "pa",
-        target_language: "en",
-      }).then((res) => res.text);
-    }
-    if (!note.target_text) {
-      if (note.source_text) {
-        note.target_text = await TranslationService.translate({
-          text: note.source_text,
-          source_language: "en",
-          target_language: "pa",
-        }).then((res) => res.text);
-      }
-    }
-    if (!note.romanization) {
-      note.romanization = transliterate(note.target_text, "gurmukhi", "iso");
-    }
-    return note;
   };
 
   const handleKeyDown = (

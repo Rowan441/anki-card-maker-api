@@ -1,9 +1,8 @@
 // components/AudioField.tsx
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Mirt from "react-mirt";
 import "react-mirt/dist/css/react-mirt.css";
 import { formatMs } from "../../utils/formatMs";
-import { AudioService } from "../../services/AnkiApiServices";
 import Button from "../ui/Button";
 import DropZone from "../ui/DropZone";
 
