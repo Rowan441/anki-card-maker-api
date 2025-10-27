@@ -102,9 +102,9 @@ export default function AudioField({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-2">
+    <div className="flex flex-col items-center justify-center">
       {audioFile ? (
-        <audio controls src={audioUrl} className="h-8" />
+        <audio className="mb-2 h-8" controls src={audioUrl} />
       ) : (
         <DropZone onDrop={onDrop} accept={{ "audio/*": [] }} />
       )}

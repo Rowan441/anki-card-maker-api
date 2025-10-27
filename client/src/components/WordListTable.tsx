@@ -387,7 +387,16 @@ export default function WordListTable({ deckId }: WordListTableProps) {
           </div>
         )}
       </div>
-      <table className="table-auto w-full border border-default bg-surface">
+      <div className="relative">
+        {loadingTableRows && (
+          <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 flex items-center justify-center z-10 rounded-lg">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-12 h-12 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Loading notes...</p>
+            </div>
+          </div>
+        )}
+        <table className="table-auto w-full border border-default bg-surface">
         <thead>
           <tr>
             <th colSpan={1} className="px-2 py-1 border border-default bg-surface-secondary">
@@ -667,6 +676,7 @@ export default function WordListTable({ deckId }: WordListTableProps) {
           </tr>
         </tbody>
       </table>
+      </div>
 
       <div className="mt-2">
         <ExportModal notes={notes} />

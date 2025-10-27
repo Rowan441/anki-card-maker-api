@@ -18,10 +18,12 @@ export default function DeckSelector({
   const selectedDeck = decks.find((d) => d.id === selectedDeckId);
 
   return (
-    <div className="flex items-center gap-2">
-      <label className="text-sm font-medium text-default">Deck:</label>
+    <div className="w-full mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
+      <label className="block text-lg font-semibold text-default mb-3">
+        Select Deck:
+      </label>
       <select
-        className="border input-default px-2 py-1 rounded text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
+        className="w-full border-2 input-default px-4 py-3 rounded-lg text-lg font-medium focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900"
         value={selectedDeckId ?? ""}
         onChange={(e) => {
           const value = e.target.value;
@@ -45,9 +47,9 @@ export default function DeckSelector({
         <option value="create">+ Create New Deck</option>
       </select>
       {selectedDeck && (
-        <span className="text-xs text-gray-500 dark:text-gray-400">
+        <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 font-medium">
           {selectedDeck.source_language} → {selectedDeck.target_language}
-        </span>
+        </div>
       )}
     </div>
   );

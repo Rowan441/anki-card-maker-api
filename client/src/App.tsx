@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import LoginModal from "./components/LoginModal";
-import WordFrequencyAnalyzer from "./components/WordFrequencyAnalyzer";
 import WordListTable from "./components/WordListTable";
 import DarkModeToggle from "./components/DarkModeToggle";
 import DeckSelector from "./components/DeckSelector";
@@ -75,7 +74,6 @@ function App() {
             />
           </div>
           <LoginModal isLoggedIn={isLoggedIn} onLogin={handleLogin} />
-          {/* <WordFrequencyAnalyzer /> */}
           {selectedDeckId !== null && <WordListTable deckId={selectedDeckId} />}
         </div>
         <DeckModal

@@ -3,6 +3,10 @@ import Button from "./ui/Button";
 import { DecksService } from "../services/AnkiApiServices";
 import type { Deck, DeckCreatePayload } from "../models/Deck";
 
+import CreatableSelect from 'react-select/creatable';
+import { languageOptions } from "../data/languages";
+
+
 interface DeckModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -19,6 +23,9 @@ export default function DeckModal({
   const [targetLanguage, setTargetLanguage] = useState("pa");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const getSelectedOption = (value: string) =>
+    languageOptions.find(opt => opt.value === value) || { value, label: value };
 
   useEffect(() => {
     if (!isOpen) {
@@ -61,13 +68,13 @@ export default function DeckModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-surface rounded-lg shadow-lg p-4 w-full max-w-md border border-default">
-        <h2 className="text-lg font-semibold text-default mb-3">
+        <h2 className="text-2xl font-semibold text-default mb-3">
           Create New Deck
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-default mb-1">
+            <label className="block text-lg font-medium text-default mb-1">
               Deck Name
             </label>
             <input
@@ -81,39 +88,27 @@ export default function DeckModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-default mb-1">
+            <label className="block text-lg font-medium text-default mb-1">
               Source Language (Your language)
             </label>
-            <select
-              className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
-              value={sourceLanguage}
-              onChange={(e) => setSourceLanguage(e.target.value)}
-            >
-              <option value="en">English</option>
-              <option value="pa">Punjabi</option>
-              <option value="hi">Hindi</option>
-              <option value="es">Spanish</option>
-              <option value="fr">French</option>
-              <option value="de">German</option>
-            </select>
+            <CreatableSelect
+              options={languageOptions}
+              value={getSelectedOption(sourceLanguage)}
+              onChange={(option) => setSourceLanguage(option?.value || "")}
+              formatCreateLabel={(inputValue) => `Use "${inputValue}"`}
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-default mb-1">
+            <label className="block text-lg font-medium text-default mb-1">
               Target Language (Learning)
             </label>
-            <select
-              className="border input-default px-2 py-1 rounded text-sm w-full focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
-              value={targetLanguage}
-              onChange={(e) => setTargetLanguage(e.target.value)}
-            >
-              <option value="pa">Punjabi</option>
-              <option value="en">English</option>
-              <option value="hi">Hindi</option>
-              <option value="es">Spanish</option>
-              <option value="fr">French</option>
-              <option value="de">German</option>
-            </select>
+            <CreatableSelect
+              options={languageOptions}
+              value={getSelectedOption(targetLanguage)}
+              onChange={(option) => setTargetLanguage(option?.value || "")}
+              formatCreateLabel={(inputValue) => `Use "${inputValue}"`}
+            />
           </div>
 
           {error && (
@@ -126,7 +121,7 @@ export default function DeckModal({
             <Button
               type="button"
               variant="secondary"
-              size="sm"
+              size="md"
               onClick={onClose}
               disabled={loading}
             >
