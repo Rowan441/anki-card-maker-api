@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import LoginModal from "./components/LoginModal";
 import WordListTable from "./components/WordListTable";
-import DarkModeToggle from "./components/DarkModeToggle";
+import Navbar from "./components/Navbar";
 import DeckSelector from "./components/DeckSelector";
 import DeckModal from "./components/DeckModal";
 import { OnlineStatusProvider } from "./provider/OnlineStatusProvider";
@@ -60,9 +60,7 @@ function App() {
   return (
     <OnlineStatusProvider>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-        <div className="fixed top-4 right-4 z-50">
-          <DarkModeToggle />
-        </div>
+        <Navbar />
         <div className="p-4">
           <div className="mb-3">
             <DeckSelector
