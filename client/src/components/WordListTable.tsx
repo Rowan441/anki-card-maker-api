@@ -337,7 +337,6 @@ export default function WordListTable({ deckId }: WordListTableProps) {
       {
         id: "select",
         header: ({ table }) => (
-          <>
             <input
               type="checkbox"
               className="h-5 w-5 cursor-pointer"
@@ -351,15 +350,16 @@ export default function WordListTable({ deckId }: WordListTableProps) {
               onChange={table.getToggleAllRowsSelectedHandler()}
               title="Select all"
             />
-          </>
         ),
         cell: ({ row }) => (
-          <input
-            type="checkbox"
-            className="h-5 w-5 cursor-pointer"
-            checked={row.getIsSelected()}
-            onChange={row.getToggleSelectedHandler()}
-          />
+          <div className="text-center">
+            <input
+              type="checkbox"
+              className="h-5 w-5 cursor-pointer"
+              checked={row.getIsSelected()}
+              onChange={row.getToggleSelectedHandler()}
+            />
+          </div>
         ),
       },
     ],
