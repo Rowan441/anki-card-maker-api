@@ -6,6 +6,7 @@ export type TextField = "target_text" | "source_text";
 const API_BASE = import.meta.env.VITE_API_URL;
 
 async function request(endpoint: string, options: RequestInit = {}, asJson = true) {
+  options.credentials = "include";
   const headers = {
     ...(options.body instanceof FormData
       ? {}

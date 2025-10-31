@@ -7,10 +7,14 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins "*"
+    # Allow specific origins (needed when credentials: 'include' is used)
+    # In production, set CLIENT_URL env var to your actual frontend URL
+    # TODO
+    origins ENV['CLIENT_URL'] || 'http://localhost:5173', /https:\/\/.*\.app\.github\.dev$/
 
     resource "*",
       headers: :any,
-      methods: [:get, :post, :put, :patch, :delete, :options, :head]
+      methods: [:get, :post, :put, :patch, :delete, :options, :head],
+      credentials: true  # Important: allow cookies
   end
 end

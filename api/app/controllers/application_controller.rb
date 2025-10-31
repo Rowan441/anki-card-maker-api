@@ -1,14 +1,10 @@
 class ApplicationController < ActionController::API
+    include ActionController::Cookies
     before_action :authenticate!
 
-    private 
+    private
 
     def authenticate!
-        if Rails.env.development?
-            @current_user = User.first
-            return
-        end
-
         token = cookies.encrypted[:session_token]
 
         return render json: { error: 'Missing token' }, status: :unauthorized unless token
