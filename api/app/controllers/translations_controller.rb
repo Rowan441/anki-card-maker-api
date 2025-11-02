@@ -5,8 +5,8 @@ class TranslationsController < ApplicationController
 
   def create
     text = params[:text]
-    target_language = params.fetch :target_language, "pa"
-    source_language = params.fetch :source_language, "en"
+    target_language = params.fetch :target_language
+    source_language = params.fetch :source_language
 
     translation = TranslationService.translate(
       text: text,

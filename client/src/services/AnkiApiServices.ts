@@ -1,5 +1,6 @@
 import type { NoteResponseApi, NoteUploadApi } from "../models/Note";
 import type { Deck, DeckCreatePayload, DeckUpdatePayload } from "../models/Deck";
+import type { LanguageCode } from "../data/languages";
 
 export type TextField = "target_text" | "source_text";
 
@@ -142,8 +143,8 @@ export const TranslationService = {
     target_language,
   }: {
     text: string;
-    source_language: string;
-    target_language: string;
+    source_language: LanguageCode;
+    target_language: LanguageCode;
   }) {
     return request(`/translation/translate`, {
       method: "POST",

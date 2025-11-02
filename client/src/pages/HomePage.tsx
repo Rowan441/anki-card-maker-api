@@ -64,7 +64,11 @@ export default function HomePage() {
               loading={loadingDecks}
             />
           </div>
-          {selectedDeckId !== null && <WordListTable deckId={selectedDeckId} />}
+          {selectedDeckId !== null && (
+            <WordListTable
+              deck={decks.find(d => d.id === selectedDeckId)!}
+            />
+          )}
         </div>
         <DeckModal
           isOpen={isDeckModalOpen}

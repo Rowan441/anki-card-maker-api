@@ -18,6 +18,7 @@ import {
 import ImageField from "./table/ImageField";
 import ExportModal from "./ExportModal";
 import type { Note, NoteUploadApi } from "../models/Note";
+import type { Deck } from "../models/Deck";
 import AudioField from "./table/AudioField";
 
 import Button from "./ui/Button";
@@ -29,26 +30,33 @@ import {
   TranslationService,
 } from "../services/AnkiApiServices";
 import { useOnlineStatus } from "../provider/OnlineStatusProvider";
+import { languageOptions, type LanguageCode } from "../data/languages";
 
 interface WordListTableProps {
-  deckId: number;
+  deck: Deck;
 }
 
-export default function WordListTable({ deckId }: WordListTableProps) {
+export default function WordListTable({ deck }: WordListTableProps) {
   const isOnline = useOnlineStatus();
   // Replace with your initial words data or import from a file
   const [notes, setNotes] = useState<Note[]>([] as Note[]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [loadingTableRows, setLoadingTableRows] = useState(true);
   const [isAddingRow, setIsAddingRow] = useState(false);
-  
+
+  const isLanguageSupported = (languageCode: string) => {
+    return languageOptions.some(lang => lang.value === languageCode);
+  };
+  const isTranslationSupported = isLanguageSupported(deck.source_language) && isLanguageSupported(deck.target_language);
+  // TODO: implement actual TTS support check
+  const isTTSSupported = true
 
   // Fetch initial words from NotesService
   useEffect(() => {
     async function fetchNotes() {
       setLoadingTableRows(true);
       try {
-        const fetchedNotes = await NotesService.index({ deck_id: deckId });
+        const fetchedNotes = await NotesService.index({ deck_id: deck.id });
         setNotes(fetchedNotes);
       } catch (err) {
         // handle error if needed
@@ -57,7 +65,7 @@ export default function WordListTable({ deckId }: WordListTableProps) {
       }
     }
     fetchNotes();
-  }, [deckId]);
+  }, [deck.id]);
 
   const [newEntry, setNewEntry] = useState<Partial<Note>>({
     target_text: "",
@@ -139,7 +147,7 @@ export default function WordListTable({ deckId }: WordListTableProps) {
     table.resetRowSelection();
     setNotes((prev) => prev.filter((note) => !selectedIds.has(note.id)));
     selectedIds.forEach((id) => {
-      NotesService.delete({ deck_id: deckId, id }).catch((err) => {
+      NotesService.delete({ deck_id: deck.id, id }).catch((err) => {
         console.error("Failed to delete note:", err);
       });
     });
@@ -153,7 +161,7 @@ export default function WordListTable({ deckId }: WordListTableProps) {
       audio: newEntry.audioFile,
       image: newEntry.imageFile
     };
-    const newNote = await NotesService.create({ deck_id: deckId, payload: uploadNote }).catch((err) => {
+    const newNote = await NotesService.create({ deck_id: deck.id, payload: uploadNote }).catch((err) => {
       console.error("Failed to create note:", err);
       return;
     });
@@ -195,7 +203,7 @@ export default function WordListTable({ deckId }: WordListTableProps) {
             onBlur={(e) => {
               handleUpdate(row.original.id, { target_text: e.target.value });
               NotesService.update({
-                deck_id: deckId,
+                deck_id: deck.id,
                 id: row.original.id,
                 payload: { target_text: e.target.value },
               });
@@ -223,7 +231,7 @@ export default function WordListTable({ deckId }: WordListTableProps) {
             onBlur={(e) => {
               handleUpdate(row.original.id, { romanization: e.target.value });
               NotesService.update({
-                deck_id: deckId,
+                deck_id: deck.id,
                 id: row.original.id,
                 payload: { romanization: e.target.value },
               });
@@ -251,7 +259,7 @@ export default function WordListTable({ deckId }: WordListTableProps) {
             onBlur={(e) => {
               handleUpdate(row.original.id, { source_text: e.target.value });
               NotesService.update({
-                deck_id: deckId,
+                deck_id: deck.id,
                 id: row.original.id,
                 payload: { source_text: e.target.value },
               });
@@ -268,7 +276,7 @@ export default function WordListTable({ deckId }: WordListTableProps) {
             audio={row.getValue("audio_url")}
             onFileUpload={async (file: File) => {
               const updatedNote = await NotesService.update({
-                deck_id: deckId,
+                deck_id: deck.id,
                 id: row.original.id,
                 payload: { audio: file },
               });
@@ -278,7 +286,7 @@ export default function WordListTable({ deckId }: WordListTableProps) {
             }}
             onTrim={async (start, end) => {
               const updatedNote = await NotesService.trim({
-                deck_id: deckId,
+                deck_id: deck.id,
                 id: row.original.id,
                 start: start.toString(),
                 end: end.toString(),
@@ -290,7 +298,7 @@ export default function WordListTable({ deckId }: WordListTableProps) {
             }}
             onDelete={async () => {
               await NotesService.update({
-                deck_id: deckId,
+                deck_id: deck.id,
                 id: row.original.id,
                 payload: { remove_audio: true },
               });
@@ -312,7 +320,7 @@ export default function WordListTable({ deckId }: WordListTableProps) {
             }
             onReplace={async (file) => {
               const updatedNote = await NotesService.update({
-                deck_id: deckId,
+                deck_id: deck.id,
                 id: row.original.id,
                 payload: { image: file },
               });
@@ -322,7 +330,7 @@ export default function WordListTable({ deckId }: WordListTableProps) {
             }}
             onDelete={async () => {
               await NotesService.update({
-                deck_id: deckId,
+                deck_id: deck.id,
                 id: row.original.id,
                 payload: { remove_image: true },
               });
@@ -404,11 +412,19 @@ export default function WordListTable({ deckId }: WordListTableProps) {
                 column="target_text"
                 table={table}
                 notes={notes}
+                disabled={!isTranslationSupported}
+                disabledReason={
+                  !isLanguageSupported(deck.source_language)
+                    ? `Source language "${deck.source_language}" is not supported for translation`
+                    : !isLanguageSupported(deck.target_language)
+                    ? `Target language "${deck.target_language}" is not supported for translation`
+                    : undefined
+                }
                 setNotes={(notes) => {
                   notes.forEach((autofilledNote) => {
                     handleUpdate(autofilledNote.id, autofilledNote);
                     NotesService.update({
-                      deck_id: deckId,
+                      deck_id: deck.id,
                       id: autofilledNote.id,
                       payload: {
                         target_text: autofilledNote.target_text,
@@ -417,10 +433,11 @@ export default function WordListTable({ deckId }: WordListTableProps) {
                   });
                 }}
                 autofillLogic={async (note) => {
+                  // Safe to cast because button is disabled if languages aren't supported
                   const translated = await TranslationService.translate({
                     text: note.source_text || "",
-                    source_language: "en",
-                    target_language: "pa",
+                    source_language: deck.source_language as LanguageCode,
+                    target_language: deck.target_language as LanguageCode,
                   }).then((res) => res.text);
                   return {
                     ...note,
@@ -438,7 +455,7 @@ export default function WordListTable({ deckId }: WordListTableProps) {
                   notes.forEach((autofilledNote) => {
                     handleUpdate(autofilledNote.id, autofilledNote);
                     NotesService.update({
-                      deck_id: deckId,
+                      deck_id: deck.id,
                       id: autofilledNote.id,
                       payload: {
                         romanization: autofilledNote.romanization,
@@ -461,11 +478,19 @@ export default function WordListTable({ deckId }: WordListTableProps) {
                 column="source_text"
                 table={table}
                 notes={notes}
+                disabled={!isTranslationSupported}
+                disabledReason={
+                  !isLanguageSupported(deck.target_language)
+                    ? `Target language "${deck.target_language}" is not supported for translation`
+                    : !isLanguageSupported(deck.source_language)
+                    ? `Source language "${deck.source_language}" is not supported for translation`
+                    : undefined
+                }
                 setNotes={(notes) => {
                   notes.forEach((autofilledNote) => {
                     handleUpdate(autofilledNote.id, autofilledNote);
                     NotesService.update({
-                      deck_id: deckId,
+                      deck_id: deck.id,
                       id: autofilledNote.id,
                       payload: {
                         source_text: autofilledNote.source_text,
@@ -474,10 +499,11 @@ export default function WordListTable({ deckId }: WordListTableProps) {
                   });
                 }}
                 autofillLogic={async (note) => {
+                  // Safe to cast because button is disabled if languages aren't supported
                   const translated = await TranslationService.translate({
                     text: note.target_text || "",
-                    source_language: "pa",
-                    target_language: "en",
+                    source_language: deck.target_language as LanguageCode,
+                    target_language: deck.source_language as LanguageCode,
                   }).then((res) => res.text);
                   return {
                     ...note,
@@ -491,11 +517,17 @@ export default function WordListTable({ deckId }: WordListTableProps) {
                 column="audio_url"
                 table={table}
                 notes={notes}
+                disabled={!isTTSSupported}
+                disabledReason={
+                  !isLanguageSupported(deck.target_language)
+                    ? `Target language "${deck.target_language}" is not supported for text-to-speech`
+                    : undefined
+                }
                 setNotes={(notes) => {
                   notes.forEach((autofilledNote) => {
                     handleUpdate(autofilledNote.id, autofilledNote);
                     NotesService.update({
-                      deck_id: deckId,
+                      deck_id: deck.id,
                       id: autofilledNote.id,
                       payload: {
                         audio: autofilledNote.audioFile,
@@ -505,7 +537,7 @@ export default function WordListTable({ deckId }: WordListTableProps) {
                 }}
                 autofillLogic={async (note) => {
                   const updatedNote = await NotesService.tts({
-                    deck_id: deckId,
+                    deck_id: deck.id,
                     id: note.id,
                   });
                   return {

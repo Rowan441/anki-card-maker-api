@@ -195,4 +195,6 @@ export const languageOptions = [
 { value : 'yo', label: 'Yoruba' },
 { value : 'yua', label: 'Yucatec Maya' },
 { value : 'zu', label: 'Zulu' },
-]
+] as const;
+
+export type LanguageCode = typeof languageOptions[number]['value'];
