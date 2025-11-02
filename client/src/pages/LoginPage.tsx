@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import DarkModeToggle from "../components/DarkModeToggle";
+import { handleError } from "../utils/errorHandler";
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
@@ -80,12 +81,14 @@ export default function LoginPage() {
         login("anonymous");
         navigate("/");
       } else {
-        console.error("Anonymous login failed:", response.statusText);
-        alert("Anonymous login failed. Please try again.");
+        handleError(response.statusText, "LoginPage - Anonymous Login", {
+          toastMessage: "Failed to log in anonymously. Please try again."
+        });
       }
     } catch (error) {
-      console.error("Anonymous login error:", error);
-      alert("Anonymous login failed. Please try again.");
+      handleError(error, "LoginPage - Anonymous Login", {
+        toastMessage: "Failed to log in anonymously. Please try again."
+      });
     }
   };
 

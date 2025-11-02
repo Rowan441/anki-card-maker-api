@@ -6,6 +6,7 @@ import WordListTable from "../components/WordListTable";
 import { OnlineStatusProvider } from "../provider/OnlineStatusProvider";
 import { DecksService } from "../services/AnkiApiServices";
 import type { Deck } from "../models/Deck";
+import { handleError } from "../utils/errorHandler";
 
 export default function HomePage() {
   const [selectedDeckId, setSelectedDeckId] = useState<number | null>(null);
@@ -30,7 +31,9 @@ export default function HomePage() {
           setSelectedDeckId(fetchedDecks[0].id);
         }
       } catch (err) {
-        console.error("Failed to fetch decks:", err);
+        handleError(err, "Home Page", {
+          toastMessage: "Failed to load decks. Please try again."
+        });
       } finally {
         setLoadingDecks(false);
       }

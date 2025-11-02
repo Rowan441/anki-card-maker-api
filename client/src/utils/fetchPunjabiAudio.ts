@@ -1,3 +1,5 @@
+import { handleError } from "./errorHandler";
+
 /**
  * Fetches the dictionary entry for a Gurmukhi word, finds the MP3 link,
  * downloads the audio, and returns a File object.
@@ -52,7 +54,10 @@ export async function fetchPunjabiAudioFile(
 
     return audioFile;
   } catch (error) {
-    console.error("Error fetching audio file:", error);
+    handleError(error, "fetchPunjabiAudio", {
+      silent: true,
+      showToast: false
+    });
     return undefined;
   }
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Button from "./ui/Button";
 import { DecksService } from "../services/AnkiApiServices";
 import type { Deck, DeckCreatePayload } from "../models/Deck";
+import { handleError, showSuccessToast } from "../utils/errorHandler";
 
 import CreatableSelect from 'react-select/creatable';
 import { languageOptions } from "../data/languages";
@@ -55,9 +56,13 @@ export default function DeckModal({
       };
       const newDeck = await DecksService.create(payload);
       onDeckCreated(newDeck);
+      showSuccessToast(`Deck "${newDeck.name}" created successfully!`);
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create deck");
+      // Use new error handling for API errors (shows toast)
+      handleError(err, "DeckCreation", {
+        toastMessage: "Failed to create deck. Please try again."
+      });
     } finally {
       setLoading(false);
     }

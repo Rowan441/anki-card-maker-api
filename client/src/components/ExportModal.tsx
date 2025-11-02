@@ -2,6 +2,7 @@ import { useState } from "react";
 import JSZip from "jszip";
 import type { Note } from "../models/Note";
 import Button from "./ui/Button";
+import { handleError } from "../utils/errorHandler";
 
 interface ExportModalProps {
   notes: Note[];
@@ -55,7 +56,10 @@ export default function ExportModal({ notes }: ExportModalProps) {
             mediaZip.file(audioFileName, blob);
             audioField = `[sound:${audioFileName}]`;
           } catch (err) {
-            console.error("Failed to fetch audio:", err);
+            handleError(err, "ExportModal - Audio Fetch", {
+              silent: true,
+              showToast: false
+            });
           }
         }
         fields.push(audioField);
@@ -71,7 +75,10 @@ export default function ExportModal({ notes }: ExportModalProps) {
             mediaZip.file(imageFileName, blob);
             imageField = `<img src="${imageFileName}">`;
           } catch (err) {
-            console.error("Failed to fetch image:", err);
+            handleError(err, "ExportModal - Image Fetch", {
+              silent: true,
+              showToast: false
+            });
           }
         }
         fields.push(imageField);
@@ -99,8 +106,9 @@ export default function ExportModal({ notes }: ExportModalProps) {
 
       setIsModalOpen(false);
     } catch (error) {
-      console.error("Export failed:", error);
-      alert("Export failed. Please try again.");
+      handleError(error, "ExportModal", {
+        toastMessage: "Failed to export cards. Please try again."
+      });
     } finally {
       setIsExporting(false);
     }

@@ -31,6 +31,7 @@ import {
 } from "../services/AnkiApiServices";
 import { useOnlineStatus } from "../provider/OnlineStatusProvider";
 import { languageOptions, type LanguageCode } from "../data/languages";
+import { handleError } from "../utils/errorHandler";
 
 interface WordListTableProps {
   deck: Deck;
@@ -59,7 +60,7 @@ export default function WordListTable({ deck }: WordListTableProps) {
         const fetchedNotes = await NotesService.index({ deck_id: deck.id });
         setNotes(fetchedNotes);
       } catch (err) {
-        // handle error if needed
+        handleError(err, "Word List Table");
       } finally {
         setLoadingTableRows(false);
       }
@@ -148,7 +149,7 @@ export default function WordListTable({ deck }: WordListTableProps) {
     setNotes((prev) => prev.filter((note) => !selectedIds.has(note.id)));
     selectedIds.forEach((id) => {
       NotesService.delete({ deck_id: deck.id, id }).catch((err) => {
-        console.error("Failed to delete note:", err);
+        handleError(err, "WordListTable - Delete Note");
       });
     });
   };
@@ -162,7 +163,7 @@ export default function WordListTable({ deck }: WordListTableProps) {
       image: newEntry.imageFile
     };
     const newNote = await NotesService.create({ deck_id: deck.id, payload: uploadNote }).catch((err) => {
-      console.error("Failed to create note:", err);
+      handleError(err, "WordListTable - Create Note");
       return;
     });
     if (newNote) {

@@ -6,6 +6,25 @@ export type TextField = "target_text" | "source_text";
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
+export class ApiError extends Error {
+  status: number;
+  code?: string;
+  details?: unknown;
+
+  constructor(
+    message: string,
+    status: number,
+    code?: string,
+    details?: unknown
+  ) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.code = code;
+    this.details = details;
+  }
+}
+
 async function request(endpoint: string, options: RequestInit = {}, asJson = true) {
   options.credentials = "include";
   const headers = {
@@ -14,14 +33,35 @@ async function request(endpoint: string, options: RequestInit = {}, asJson = tru
       : { "Content-Type": "application/json" }),
     ...options.headers,
   };
-  const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || `Request failed: ${res.status}`);
-  }
 
-  if (asJson) return res.json();
-  return res;
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      const message = err.error || err.message || `Request failed with status ${res.status}`;
+      throw new ApiError(message, res.status, err.code, err);
+    }
+
+    if (asJson) return res.json();
+    return res;
+  } catch (error) {
+    // Re-throw ApiErrors as-is
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    // Handle network errors
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new ApiError('Network error. Please check your internet connection.', 0);
+    }
+
+    // Handle other errors
+    throw new ApiError(
+      error instanceof Error ? error.message : 'An unexpected error occurred',
+      0
+    );
+  }
 }
 
 function buildPayload(params: NoteUploadApi) {

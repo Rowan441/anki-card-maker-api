@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
+import { handleError } from "../utils/errorHandler";
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
@@ -40,7 +41,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(null);
       }
     } catch (error) {
-      console.error("Auth check failed:", error);
+      handleError(error, "AuthContext - Check Status", {
+        silent: true,
+        showToast: false
+      });
       setIsAuthenticated(false);
       setUser(null);
     } finally {
@@ -65,7 +69,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         credentials: 'include',
       });
     } catch (error) {
-      console.error("Logout failed:", error);
+      handleError(error, "AuthContext - Logout", {
+        toastMessage: "Failed to logout properly. Please try again."
+      });
     } finally {
       setIsAuthenticated(false);
       setUser(null);
