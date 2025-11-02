@@ -15,15 +15,6 @@ useNoteTable() custom hook - state management & CRUD operations
 NoteTableRow component - individual row rendering
 NoteTableHeader component - column headers with autofill
 NewNoteRow component - add new note form
-2. Fix Hardcoded Language Codes
-Location: client/src/components/WordListTable.tsx:423, line 479 Currently hardcoded to en → pa. Use deck's actual language settings:
-source_language: deck.source_language,
-target_language: deck.target_language,
-3. Implement Session Expiration (Security)
-Location: api/app/models/session.rb Add the missing expired? method:
-def expired?
-  last_used_at < 30.days.ago
-end
 4. Standardize Error Handling
 Backend returns inconsistent formats: { error: } vs { errors: }
 Frontend mixes console.error(), alert(), and silent failures
