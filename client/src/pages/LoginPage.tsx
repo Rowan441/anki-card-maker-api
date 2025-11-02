@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import DarkModeToggle from "../components/DarkModeToggle";
 import { handleError } from "../utils/errorHandler";
+import { initiateGoogleAuth } from "../utils/googleAuth";
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
@@ -18,40 +19,17 @@ export default function LoginPage() {
   }, [isAuthenticated, navigate]);
 
   const handleGoogleLogin = () => {
-    // Set up message listener BEFORE opening popup
-    const handleMessage = (event: MessageEvent) => {
-      // todo: this doesn't work on gh dev env
-
-      console.log("Message received:", event.origin, event.data);
-
-      // Accept messages from the API server
-      // Compare origins properly - event.origin is the full origin (e.g., "https://example.com:3000")
-      const apiOrigin = new URL(API_BASE).origin;
-      if (event.origin !== apiOrigin) {
-        // console.log("Origin mismatch:", event.origin, "!==", apiOrigin);
-        return;
-      }
-
-      if (event.data.token && event.data.success) {
-        popup?.close();
-        const email = event.data.email;
-        // Clear anonymous user ID when logging in with Google
-        localStorage.removeItem("anonymousUserId");
+    initiateGoogleAuth({
+      onSuccess: (email) => {
         login("google", email);
-        window.removeEventListener("message", handleMessage);
         navigate("/");
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    // Open popup with current window origin as a query param so backend knows where to send postMessage
-    const currentOrigin = window.location.origin;
-    const popup = window.open(
-      `${API_BASE}/auth/google_oauth2?origin=${encodeURIComponent(currentOrigin)}`,
-      "googleAuth",
-      "width=500,height=600,scrollbars=yes,resizable=yes"
-    );
+      },
+      onError: (error) => {
+        handleError(error, "LoginPage - Google Login", {
+          toastMessage: "Failed to open login popup. Please try again.",
+        });
+      },
+    });
   };
 
   const handleAnonymousLogin = async () => {

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_26_051527) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_02_162241) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -84,6 +84,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_26_051527) do
     t.string "uid"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "merged_from_user_id"
+    t.datetime "merged_at"
+    t.index ["merged_from_user_id"], name: "index_users_on_merged_from_user_id"
     t.index ["provider", "uid", "email"], name: "index_users_on_provider_and_uid_and_email", unique: true
   end
 
@@ -92,4 +95,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_26_051527) do
   add_foreign_key "decks", "users"
   add_foreign_key "notes", "decks"
   add_foreign_key "sessions", "users"
+  add_foreign_key "users", "users", column: "merged_from_user_id"
 end

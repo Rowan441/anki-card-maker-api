@@ -1,5 +1,7 @@
 class SessionsController < ApplicationController
   include ActionController::Cookies
+  # TODO: Research and implement proper CSRF protection for OAuth flow
+  # See: https://guides.rubyonrails.org/security.html#cross-site-request-forgery-csrf
 
   skip_before_action :authenticate!, only: [:create, :anonymous]
 
@@ -48,10 +50,51 @@ class SessionsController < ApplicationController
   def create
     auth = request.env['omniauth.auth']
 
-    user = User.find_or_create_by!(email: auth.info.email) do |u|
-      u.name = auth.info.name || "User#{SecureRandom.hex(4)}"
-      u.provider = auth.provider
-      u.uid = auth.uid
+    # Check if this is an upgrade flow by looking at:
+    # 1. upgrade=true query param (explicitly passed by frontend)
+    # 2. Existing session token that identifies an anonymous user
+    is_upgrade_request = params[:upgrade] == 'true'
+    existing_session_token = cookies.encrypted[:session_token]
+
+    # If this is an upgrade request, validate the anonymous session
+    if is_upgrade_request
+      if existing_session_token.blank?
+        return render json: { error: 'No active session found for upgrade' }, status: :bad_request
+      end
+
+      existing_session = Session.find_by(token: existing_session_token)
+
+      if existing_session.nil?
+        return render json: { error: 'Session not found for upgrade' }, status: :bad_request
+      end
+
+      if existing_session.expired?
+        return render json: { error: 'Session expired. Please log in anonymously again to preserve your data.' }, status: :unauthorized
+      end
+
+      unless existing_session.user&.anonymous?
+        return render json: { error: 'Can only upgrade anonymous accounts' }, status: :bad_request
+      end
+
+      anonymous_user = existing_session.user
+    else
+      anonymous_user = nil
+    end
+
+    # Wrap user creation and merge in a transaction
+    user = User.transaction do
+      google_user = User.find_or_create_by!(email: auth.info.email) do |u|
+        u.name = auth.info.name || "User#{SecureRandom.hex(4)}"
+        u.provider = auth.provider
+        u.uid = auth.uid
+      end
+
+      # Merge anonymous account into Google account if upgrading
+      if anonymous_user.present?
+        google_user.merge_anonymous_user!(anonymous_user)
+      end
+
+      google_user
     end
 
     # Clean up old sessions (optional)
