@@ -15,10 +15,6 @@ useNoteTable() custom hook - state management & CRUD operations
 NoteTableRow component - individual row rendering
 NoteTableHeader component - column headers with autofill
 NewNoteRow component - add new note form
-4. Standardize Error Handling
-Backend returns inconsistent formats: { error: } vs { errors: }
-Frontend mixes console.error(), alert(), and silent failures
-Fix: Create global error boundary, toast notification system, standardize backend responses
 🟡 High Priority
 5. Add Tests (Currently None Exist)
 Backend: Add RSpec for Rails

@@ -105,34 +105,7 @@ export default function WordListTable({ deck }: WordListTableProps) {
   const handleUpdate = async (
     id: number,
     updates: Partial<Note>
-    // updateInDb: boolean = false
   ) => {
-    // if (updateInDb) {
-    //   try {
-    //     const updatedNote = await NotesService.update({
-    //       deck_id: 3,
-    //       id: id,
-    //       payload: {
-    //         target_text: updates.target_text,
-    //         romanization: updates.romanization,
-    //         source_text: updates.source_text,
-    //         audio: updates.pronunciationFile,
-    //         image: updates.imageFile,
-    //       } as NoteUploadApi,
-    //     }).catch((err) => {
-    //       console.error("Failed to update note with audio:", err);
-    //     });
-    //     if (updatedNote?.audioUrl) {
-    //       updates.pronunciationFile = updatedNote.audioUrl;
-    //     }
-    //     if (updatedNote?.imageUrl) {
-    //       updates.imageFile = updatedNote.imageUrl;
-    //     }
-    //   } catch (err) {
-    //     console.error("Failed to update note:", err);
-    //     //todo handle offline case and failed uploads
-    //   }
-    // }
     setNotes((prevNotes) =>
       prevNotes.map((note) => {
         if (note.id !== id) return note;

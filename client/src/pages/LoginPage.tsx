@@ -20,7 +20,6 @@ export default function LoginPage() {
   const handleGoogleLogin = () => {
     // Set up message listener BEFORE opening popup
     const handleMessage = (event: MessageEvent) => {
-      debugger;
       // todo: this doesn't work on gh dev env
 
       console.log("Message received:", event.origin, event.data);
